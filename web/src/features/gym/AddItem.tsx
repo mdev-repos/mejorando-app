@@ -1,11 +1,12 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useExercises } from '../../app/data'
+import { ModuleIcon } from '../../brand/Logo'
 import { db, newId } from '../../db/db'
-import { createExercise, saveItems } from '../../db/queries'
+import { createExercise, itemsFor, saveItems } from '../../db/queries'
 import { MUSCLE_GROUPS, groupLabel, type MuscleGroupId } from '../../domain/muscles'
-import { formatRest } from '../../domain/targets'
+import { JUMP_REST_PRESETS, escalonado, formatRest, formatTarget } from '../../domain/targets'
 import type {
   Exercise,
   JumpSetItem,
@@ -13,7 +14,7 @@ import type {
   RepTarget,
   RestPauseItem,
 } from '../../domain/types'
-import { GroupThumb, Stepper, TopBar } from '../../ui/components'
+import { GroupThumb, RestPicker, Stepper, TopBar } from '../../ui/components'
 
 /* ---------- elegir ejercicio: grupo muscular y después ejercicio ---------- */
 function ExercisePicker(props: { onPick: (e: Exercise) => void }) {
@@ -73,9 +74,17 @@ function ExercisePicker(props: { onPick: (e: Exercise) => void }) {
       />
       <div className="stack">
         {options.map((e) => (
-          <button key={e.id} className="card tap" onClick={() => props.onPick(e)}>
-            <div className="t1">{e.name}</div>
-            <div className="t2">{e.custom ? 'Propio' : e.equipment}</div>
+          <button
+            key={e.id}
+            className="card tap"
+            style={{ display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left' }}
+            onClick={() => props.onPick(e)}
+          >
+            <GroupThumb group={e.group} exerciseId={e.id} />
+            <div className="grow">
+              <div className="t1">{e.name}</div>
+              <div className="t2">{e.custom ? 'Propio' : e.equipment}</div>
+            </div>
           </button>
         ))}
         {options.length === 0 && <div className="empty">No hay ejercicios con ese nombre.</div>}
@@ -201,12 +210,18 @@ function RestField({
   )
 }
 
-type Phase = 'pick' | 'mode' | 'normal' | 'protocol' | 'restpause' | 'jump' | 'jumppick'
+type Phase =
+  'pick' | 'mode' | 'normal' | 'protocol' | 'restpause' | 'escalonado' | 'jump' | 'jumppick'
 
 export function AddItem() {
   const { id = '' } = useParams()
   const navigate = useNavigate()
-  const training = useLiveQuery(async () => (await db.trainings.get(id)) ?? null, [id])
+  const [params] = useSearchParams()
+  const day = useLiveQuery(async () => (await db.trainings.get(id)) ?? null, [id])
+  const meso = useLiveQuery(
+    async () => (day ? await db.mesocycles.get(day.mesoId) : undefined),
+    [day?.mesoId],
+  )
   const [phase, setPhase] = useState<Phase>('pick')
   const [exercise, setExercise] = useState<Exercise | null>(null)
 
@@ -218,22 +233,29 @@ export function AddItem() {
   // jumpset
   const [jump, setJump] = useState<{ exercise: Exercise; target: RepTarget; restSec: number }[]>([])
   const [rounds, setRounds] = useState(3)
+  // escalonado
+  const [escSets, setEscSets] = useState(4)
+  const [escFirst, setEscFirst] = useState(10)
+  const [escStep, setEscStep] = useState(-2)
 
-  if (!training) return null
-  const back = () => navigate(`/gym/entrenamiento/${training.id}`)
+  if (!day || !meso) return null
+  const execution = Math.min(Math.max(Number(params.get('e')) || 1, 1), meso.executions)
+  const simple = meso.mode === 'simple'
+  const back = () => navigate(`/gym/dia/${day.id}${execution > 1 ? `?e=${execution}` : ''}`)
 
   async function append(item: NormalItem | RestPauseItem | JumpSetItem) {
-    if (!training) return
-    await saveItems(db, training.id, [...training.items, item])
+    if (!day || !meso) return
+    await saveItems(db, day.id, [...itemsFor(day, execution, meso.mode), item], execution)
     back()
   }
 
   const goBack: Record<Phase, () => void> = {
     pick: back,
     mode: () => setPhase('pick'),
-    normal: () => setPhase('mode'),
+    normal: () => setPhase(simple ? 'pick' : 'mode'),
     protocol: () => setPhase('mode'),
     restpause: () => setPhase('protocol'),
+    escalonado: () => setPhase('protocol'),
     jump: () => setPhase('protocol'),
     jumppick: () => setPhase('jump'),
   }
@@ -243,6 +265,7 @@ export function AddItem() {
     normal: exercise?.name ?? 'Normal',
     protocol: 'Protocolo',
     restpause: 'Rest pause',
+    escalonado: 'Escalonado',
     jump: 'JumpSet',
     jumppick: 'Otro ejercicio del JumpSet',
   }
@@ -250,6 +273,7 @@ export function AddItem() {
   return (
     <>
       <TopBar
+        icon={<ModuleIcon module="gym" size={36} />}
         title={titles[phase]}
         subtitle={
           exercise && phase !== 'pick' && phase !== 'jumppick'
@@ -263,7 +287,7 @@ export function AddItem() {
           <ExercisePicker
             onPick={(e) => {
               setExercise(e)
-              setPhase('mode')
+              setPhase(simple ? 'normal' : 'mode')
             }}
           />
         )}
@@ -308,6 +332,12 @@ export function AddItem() {
                 Dos o tres ejercicios que se alternan por rondas, cada uno con su descanso.
               </div>
             </button>
+            <button className="card tap" onClick={() => setPhase('escalonado')}>
+              <div className="t1">Escalonado</div>
+              <div className="t2">
+                Las repeticiones bajan (o suben) en cada serie, por ejemplo 10, 8, 6 y 4.
+              </div>
+            </button>
             <button className="card tap" onClick={() => setPhase('restpause')}>
               <div className="t1">Rest pause</div>
               <div className="t2">
@@ -325,7 +355,7 @@ export function AddItem() {
               onChange={setTarget}
               unit={exercise.load === 'time' ? 'Segundos' : 'Repeticiones'}
             />
-            <RestField label="Descanso entre series" value={restSec} onChange={setRestSec} />
+            <RestPicker label="Descanso entre series" value={restSec} onChange={setRestSec} />
             {phase === 'restpause' && (
               <>
                 <RestField
@@ -341,6 +371,39 @@ export function AddItem() {
                 </div>
               </>
             )}
+          </div>
+        )}
+
+        {phase === 'escalonado' && exercise && (
+          <div className="stack">
+            <Stepper
+              label="Series"
+              value={escSets}
+              step={1}
+              min={2}
+              max={10}
+              onChange={setEscSets}
+            />
+            <Stepper
+              label="Repeticiones de la primera"
+              value={escFirst}
+              step={1}
+              min={1}
+              max={30}
+              onChange={setEscFirst}
+            />
+            <Stepper
+              label="Cambio en cada serie"
+              value={escStep}
+              step={1}
+              min={-10}
+              max={10}
+              onChange={setEscStep}
+            />
+            <div className="note">
+              Quedan {formatTarget(escalonado(escSets, escFirst, escStep))}
+            </div>
+            <RestPicker label="Descanso entre series" value={restSec} onChange={setRestSec} />
           </div>
         )}
 
@@ -368,7 +431,7 @@ export function AddItem() {
                     setJump((j) => j.map((x, k) => (k === i ? { ...x, target: t } : x)))
                   }
                 />
-                <RestField
+                <RestPicker
                   label={
                     i === jump.length - 1
                       ? 'Descanso al cerrar la ronda'
@@ -378,6 +441,7 @@ export function AddItem() {
                   onChange={(v) =>
                     setJump((j) => j.map((x, k) => (k === i ? { ...x, restSec: v } : x)))
                   }
+                  presets={JUMP_REST_PRESETS}
                 />
               </div>
             ))}
@@ -390,51 +454,64 @@ export function AddItem() {
         )}
       </div>
 
-      {(phase === 'normal' || phase === 'restpause' || phase === 'jump') && exercise && (
-        <div className="bottom">
-          <button
-            className="btn primary"
-            disabled={phase === 'jump' && jump.length < 2}
-            onClick={() => {
-              if (phase === 'normal')
-                void append({
-                  id: newId(),
-                  kind: 'normal',
-                  exerciseId: exercise.id,
-                  sets,
-                  target,
-                  restSec,
-                })
-              if (phase === 'restpause')
-                void append({
-                  id: newId(),
-                  kind: 'restpause',
-                  exerciseId: exercise.id,
-                  sets,
-                  target,
-                  restSec,
-                  restPauseSec,
-                })
-              if (phase === 'jump')
-                void append({
-                  id: newId(),
-                  kind: 'jumpset',
-                  rounds,
-                  steps: jump.map((s) => ({
-                    exerciseId: s.exercise.id,
-                    target: s.target,
-                    restSec: s.restSec,
-                  })),
-                })
-            }}
-          >
-            Agregar al entrenamiento
-          </button>
-          {phase === 'jump' && jump.length < 2 && (
-            <div className="hint">Un JumpSet necesita al menos dos ejercicios.</div>
-          )}
-        </div>
-      )}
+      {(phase === 'normal' ||
+        phase === 'restpause' ||
+        phase === 'escalonado' ||
+        phase === 'jump') &&
+        exercise && (
+          <div className="bottom">
+            <button
+              className="btn primary"
+              disabled={phase === 'jump' && jump.length < 2}
+              onClick={() => {
+                if (phase === 'normal')
+                  void append({
+                    id: newId(),
+                    kind: 'normal',
+                    exerciseId: exercise.id,
+                    sets,
+                    target,
+                    restSec,
+                  })
+                if (phase === 'escalonado')
+                  void append({
+                    id: newId(),
+                    kind: 'normal',
+                    exerciseId: exercise.id,
+                    sets: escSets,
+                    target: escalonado(escSets, escFirst, escStep),
+                    restSec,
+                  })
+                if (phase === 'restpause')
+                  void append({
+                    id: newId(),
+                    kind: 'restpause',
+                    exerciseId: exercise.id,
+                    sets,
+                    target,
+                    restSec,
+                    restPauseSec,
+                  })
+                if (phase === 'jump')
+                  void append({
+                    id: newId(),
+                    kind: 'jumpset',
+                    rounds,
+                    steps: jump.map((s) => ({
+                      exerciseId: s.exercise.id,
+                      target: s.target,
+                      restSec: s.restSec,
+                    })),
+                  })
+              }}
+            >
+              Agregar al entrenamiento
+            </button>
+            {phase === 'jump' && jump.length < 2 && (
+              <div className="hint">Un JumpSet necesita al menos dos ejercicios.</div>
+            )}
+          </div>
+        )}
     </>
   )
 }

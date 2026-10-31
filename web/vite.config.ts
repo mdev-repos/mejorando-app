@@ -9,8 +9,8 @@ export default defineConfig({
       registerType: 'prompt',
       includeAssets: ['favicon.svg', 'icons/apple-touch-icon.png'],
       manifest: {
-        name: 'Camino+',
-        short_name: 'Camino+',
+        name: 'MejorAndo',
+        short_name: 'MejorAndo',
         description: 'Una suite para mejorar tu salud, empezando por el entrenamiento.',
         lang: 'es',
         start_url: '/',
@@ -31,7 +31,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,webp,woff2}'],
         navigateFallback: '/index.html',
       },
     }),

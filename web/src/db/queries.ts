@@ -1,42 +1,193 @@
 import { SEED_EXERCISES } from '../domain/catalog'
 import { advance, buildSteps, isFinished, type FlowState, type Step } from '../domain/session'
-import type { Exercise, PlanItem, Session, SetKind, SetLog, Training } from '../domain/types'
-import { newId, type CaminoDB } from './db'
+import type {
+  Exercise,
+  Macrocycle,
+  Mesocycle,
+  PlanItem,
+  RoutineMode,
+  Session,
+  SetKind,
+  SetLog,
+  Training,
+} from '../domain/types'
+import { newId, type MejorAndoDB } from './db'
 
 /** Carga o actualiza el catálogo base. Es seguro repetirlo, aunque dos arranques coincidan. */
-export async function seedCatalog(db: CaminoDB): Promise<void> {
+export async function seedCatalog(db: MejorAndoDB): Promise<void> {
   await db.exercises.bulkPut(SEED_EXERCISES)
 }
 
-export async function createTraining(
-  db: CaminoDB,
+/* ---------- macrociclos, mesociclos y días ---------- */
+
+export async function createMacro(
+  db: MejorAndoDB,
+  name: string,
+  now = Date.now(),
+): Promise<Macrocycle> {
+  const macro: Macrocycle = { id: newId(), name, createdAt: now, updatedAt: now }
+  await db.macrocycles.add(macro)
+  return macro
+}
+
+export async function renameMacro(db: MejorAndoDB, id: string, name: string): Promise<void> {
+  await db.macrocycles.update(id, { name, updatedAt: Date.now() })
+}
+
+export async function deleteMacro(db: MejorAndoDB, id: string): Promise<void> {
+  await db.macrocycles.update(id, { deletedAt: Date.now() })
+}
+
+export async function createMeso(
+  db: MejorAndoDB,
+  macroId: string,
+  name: string,
+  opts: { mode?: RoutineMode; executions?: number } = {},
+  now = Date.now(),
+): Promise<Mesocycle> {
+  const order = await db.mesocycles
+    .where('macroId')
+    .equals(macroId)
+    .filter((m) => !m.deletedAt)
+    .count()
+  const meso: Mesocycle = {
+    id: newId(),
+    macroId,
+    name,
+    order,
+    mode: opts.mode ?? 'simple',
+    executions: opts.executions ?? 4,
+    createdAt: now,
+    updatedAt: now,
+  }
+  await db.mesocycles.add(meso)
+  return meso
+}
+
+export async function updateMeso(
+  db: MejorAndoDB,
+  id: string,
+  patch: Partial<Pick<Mesocycle, 'name' | 'mode' | 'executions' | 'order'>>,
+): Promise<void> {
+  await db.mesocycles.update(id, { ...patch, updatedAt: Date.now() })
+}
+
+export async function deleteMeso(db: MejorAndoDB, id: string): Promise<void> {
+  await db.mesocycles.update(id, { deletedAt: Date.now() })
+}
+
+export async function createDay(
+  db: MejorAndoDB,
+  mesoId: string,
   name: string,
   now = Date.now(),
 ): Promise<Training> {
-  const training: Training = { id: newId(), name, items: [], createdAt: now, updatedAt: now }
-  await db.trainings.add(training)
-  return training
+  const order = await db.trainings
+    .where('mesoId')
+    .equals(mesoId)
+    .filter((t) => !t.deletedAt)
+    .count()
+  const day: Training = {
+    id: newId(),
+    mesoId,
+    name,
+    order,
+    items: [],
+    createdAt: now,
+    updatedAt: now,
+  }
+  await db.trainings.add(day)
+  return day
 }
 
-export async function saveItems(
-  db: CaminoDB,
-  trainingId: string,
-  items: PlanItem[],
-  now = Date.now(),
-): Promise<void> {
-  await db.trainings.update(trainingId, { items, updatedAt: now })
-}
-
-export async function renameTraining(db: CaminoDB, id: string, name: string): Promise<void> {
+export async function renameDay(db: MejorAndoDB, id: string, name: string): Promise<void> {
   await db.trainings.update(id, { name, updatedAt: Date.now() })
 }
 
-export async function deleteTraining(db: CaminoDB, id: string): Promise<void> {
+export async function deleteDay(db: MejorAndoDB, id: string): Promise<void> {
   await db.trainings.update(id, { deletedAt: Date.now() })
 }
 
+export async function swapDayOrder(db: MejorAndoDB, a: Training, b: Training): Promise<void> {
+  await db.transaction('rw', db.trainings, async () => {
+    await db.trainings.update(a.id, { order: b.order })
+    await db.trainings.update(b.id, { order: a.order })
+  })
+}
+
+/** Los ejercicios de un día en una ejecución. Solo una rutina avanzada puede tener ejecuciones distintas. */
+export function itemsFor(day: Training, execution: number, mode: RoutineMode): PlanItem[] {
+  if (mode === 'advanced' && execution > 1) return day.executionItems?.[execution] ?? day.items
+  return day.items
+}
+
+/** Guarda los ejercicios de una ejecución. La primera es la base de las demás. */
+export async function saveItems(
+  db: MejorAndoDB,
+  dayId: string,
+  items: PlanItem[],
+  execution = 1,
+  now = Date.now(),
+): Promise<void> {
+  if (execution <= 1) {
+    await db.trainings.update(dayId, { items, updatedAt: now })
+    return
+  }
+  const day = await db.trainings.get(dayId)
+  if (!day) return
+  await db.trainings.update(dayId, {
+    executionItems: { ...day.executionItems, [execution]: items },
+    updatedAt: now,
+  })
+}
+
+/** Vuelve a una ejecución a usar los mismos ejercicios que la primera. */
+export async function clearExecution(
+  db: MejorAndoDB,
+  dayId: string,
+  execution: number,
+): Promise<void> {
+  const day = await db.trainings.get(dayId)
+  if (!day?.executionItems) return
+  const { [execution]: _quitada, ...rest } = day.executionItems
+  void _quitada
+  await db.trainings.update(dayId, { executionItems: rest, updatedAt: Date.now() })
+}
+
+export interface ExecutionStatus {
+  execution: number
+  state: 'done' | 'active' | 'pending'
+  sessionId?: string
+}
+
+/** Qué ejecuciones de un día ya se hicieron, cuál está en curso y cuáles faltan. */
+export async function executionStatus(
+  db: MejorAndoDB,
+  dayId: string,
+  total: number,
+): Promise<ExecutionStatus[]> {
+  const sessions = await db.sessions.where('trainingId').equals(dayId).toArray()
+  return Array.from({ length: total }, (_, i) => {
+    const execution = i + 1
+    const done = sessions.find((s) => s.execution === execution && s.status === 'done')
+    if (done) return { execution, state: 'done', sessionId: done.id }
+    const active = sessions.find((s) => s.execution === execution && s.status === 'active')
+    if (active) return { execution, state: 'active', sessionId: active.id }
+    return { execution, state: 'pending' }
+  })
+}
+
+/** El peso que sube cada toque para un ejercicio, o undefined si no se ajustó. */
+export async function setWeightStep(
+  db: MejorAndoDB,
+  exerciseId: string,
+  weightStep: number,
+): Promise<void> {
+  await db.exerciseSettings.put({ exerciseId, weightStep })
+}
+
 export async function createExercise(
-  db: CaminoDB,
+  db: MejorAndoDB,
   data: Omit<Exercise, 'id' | 'custom'>,
 ): Promise<Exercise> {
   const exercise: Exercise = { ...data, id: newId(), custom: true }
@@ -45,15 +196,21 @@ export async function createExercise(
 }
 
 export async function startSession(
-  db: CaminoDB,
-  training: Training,
+  db: MejorAndoDB,
+  day: Training,
+  meso: Mesocycle,
+  execution: number,
   now = Date.now(),
 ): Promise<Session> {
   const session: Session = {
     id: newId(),
-    trainingId: training.id,
-    trainingName: training.name,
-    plan: structuredClone(training.items),
+    trainingId: day.id,
+    trainingName: day.name,
+    mesoId: meso.id,
+    mesoName: meso.name,
+    execution,
+    executionsTotal: meso.executions,
+    plan: structuredClone(itemsFor(day, execution, meso.mode)),
     startedAt: now,
     status: 'active',
     stepIndex: 0,
@@ -72,7 +229,7 @@ export function flowOf(session: Session): FlowState {
   }
 }
 
-export async function saveFlow(db: CaminoDB, sessionId: string, flow: FlowState): Promise<void> {
+export async function saveFlow(db: MejorAndoDB, sessionId: string, flow: FlowState): Promise<void> {
   await db.sessions.update(sessionId, { ...flow })
 }
 
@@ -83,7 +240,7 @@ export type NewLog = Pick<SetLog, 'weight' | 'reps' | 'setIndex'> & { kind: SetK
  * así si la app se cierra a mitad de camino no queda nada a medias.
  */
 export async function completeStep(
-  db: CaminoDB,
+  db: MejorAndoDB,
   sessionId: string,
   steps: Step[],
   input: { logs?: NewLog[]; extraReps?: number },
@@ -135,7 +292,7 @@ export async function completeStep(
 }
 
 export async function finishSession(
-  db: CaminoDB,
+  db: MejorAndoDB,
   sessionId: string,
   now = Date.now(),
 ): Promise<void> {
@@ -149,7 +306,7 @@ export async function finishSession(
 
 /** Las series de la vez anterior que se hizo este ejercicio, ordenadas por número de serie. */
 export async function previousSets(
-  db: CaminoDB,
+  db: MejorAndoDB,
   exerciseId: string,
   kind: SetKind,
   excludeSessionId: string,

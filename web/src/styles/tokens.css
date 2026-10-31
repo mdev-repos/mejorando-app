@@ -1,76 +1,109 @@
-/* Paleta índigo con tema oscuro y claro (ADR-002). Por defecto sigue el tema del teléfono. */
+/* Paleta de MejorAndo. Un color por módulo sobre una base oscura o clara, con el tema del teléfono por defecto. */
 :root {
-  --radius: 16px;
-  --font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --radius: 18px;
+  --font: 'Figtree Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   color-scheme: dark;
-  --bg: #0e1117;
-  --surface: #161a23;
-  --surface2: #1f2531;
-  --border: #2b3242;
-  --text: #e8ebf2;
-  --muted: #9ba4b7;
-  --primary: #8a97ff;
-  --on-primary: #0e1117;
-  --tint: rgba(138, 151, 255, 0.14);
+  --bg: #0c1017;
+  --surface: #161c28;
+  --surface2: #1f2837;
+  --border: #2a3446;
+  --text: #eef1f8;
+  --muted: #9aa6bd;
   --up: #43d69a;
   --down: #ff7a7a;
-  --approach: #6f7aa8;
-  --foot-near: #7c8bff;
-  --foot-far: #e3e6ff;
+  --approach: #7c8bb5;
+  --shadow: 0 12px 28px -14px rgba(0, 0, 0, 0.7);
+  --shine: rgba(255, 255, 255, 0.06);
+  --glow: 0.16;
+  --accent: #ff7a45;
+  --tint: rgba(255, 122, 69, 0.15);
+  /* el acento cambia según el módulo, EntrenAndo es naranja */
+  --accent-lo: #ff9a56;
+  --accent-hi: #f2542d;
+  --on-accent: #1c0f08;
+  /* el color propio de la suite, el de "Ando" en el nombre */
+  --suite: #9b6bff;
 }
 
 @media (prefers-color-scheme: light) {
   :root:not([data-theme='dark']) {
     color-scheme: light;
-    --bg: #e8ebf1;
-    --surface: #f5f6f9;
-    --surface2: #dce0e9;
-    --border: #c6ccd9;
-    --text: #1b1f2b;
-    --muted: #586177;
-    --primary: #4a5ad0;
-    --on-primary: #f5f6f9;
-    --tint: rgba(74, 90, 208, 0.12);
+    --suite: #6a44e4;
+    --bg: #e9edf3;
+    --surface: #f7f8fb;
+    --surface2: #dde3ec;
+    --border: #c8d0dd;
+    --text: #1a2030;
+    --muted: #55617a;
     --up: #17794f;
     --down: #b83232;
     --approach: #7f88a8;
-    --foot-near: #4a5ad0;
-    --foot-far: #d3d8f4;
+    --shadow: 0 12px 24px -16px rgba(30, 40, 70, 0.4);
+    --shine: rgba(255, 255, 255, 0.7);
+    --glow: 0.2;
+    --accent: #dc4519;
+    --tint: rgba(220, 69, 25, 0.12);
   }
 }
 
 :root[data-theme='light'] {
+  --suite: #6a44e4;
   color-scheme: light;
-  --bg: #e8ebf1;
-  --surface: #f5f6f9;
-  --surface2: #dce0e9;
-  --border: #c6ccd9;
-  --text: #1b1f2b;
-  --muted: #586177;
-  --primary: #4a5ad0;
-  --on-primary: #f5f6f9;
-  --tint: rgba(74, 90, 208, 0.12);
+  --bg: #e9edf3;
+  --surface: #f7f8fb;
+  --surface2: #dde3ec;
+  --border: #c8d0dd;
+  --text: #1a2030;
+  --muted: #55617a;
   --up: #17794f;
   --down: #b83232;
   --approach: #7f88a8;
-  --foot-near: #4a5ad0;
-  --foot-far: #d3d8f4;
+  --shadow: 0 12px 24px -16px rgba(30, 40, 70, 0.4);
+  --shine: rgba(255, 255, 255, 0.7);
+  --glow: 0.2;
+  --accent: #dc4519;
+  --tint: rgba(220, 69, 25, 0.12);
 }
 
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --bg: #0e1117;
-  --surface: #161a23;
-  --surface2: #1f2531;
-  --border: #2b3242;
-  --text: #e8ebf2;
-  --muted: #9ba4b7;
-  --primary: #8a97ff;
-  --on-primary: #0e1117;
-  --tint: rgba(138, 151, 255, 0.14);
+  --bg: #0c1017;
+  --surface: #161c28;
+  --surface2: #1f2837;
+  --border: #2a3446;
+  --text: #eef1f8;
+  --muted: #9aa6bd;
   --up: #43d69a;
   --down: #ff7a7a;
-  --approach: #6f7aa8;
-  --foot-near: #7c8bff;
-  --foot-far: #e3e6ff;
+  --approach: #7c8bb5;
+  --shadow: 0 12px 28px -14px rgba(0, 0, 0, 0.7);
+  --shine: rgba(255, 255, 255, 0.06);
+  --glow: 0.16;
+  --accent: #ff7a45;
+  --tint: rgba(255, 122, 69, 0.15);
+}
+
+/* La suite (inicio y ajustes) usa su propio color, y cada módulo el suyo */
+.app[data-module='suite'] {
+  --accent-lo: #b79bff;
+  --accent-hi: #7a4df0;
+  --accent: var(--suite);
+  --tint: rgba(155, 107, 255, 0.15);
+  --on-accent: #0d0720;
+}
+
+/* Los módulos que vienen después ya tienen su color */
+.app[data-module='alimentacion'] {
+  --accent-lo: #7be08f;
+  --accent-hi: #27a35a;
+  --accent: #3fc274;
+  --tint: rgba(63, 194, 116, 0.15);
+  --on-accent: #06210f;
+}
+.app[data-module='pasos'] {
+  --accent-lo: #6db8ff;
+  --accent-hi: #2c79e0;
+  --accent: #4c9bff;
+  --tint: rgba(76, 155, 255, 0.15);
+  --on-accent: #04152e;
 }

@@ -70,7 +70,39 @@ Los protocolos son una idea a mejorar entre los dos, y esto es solo el punto de 
 - **JumpSet.** Se eligen dos o tres ejercicios del catálogo, y se indica cuántas rondas se hacen y cuánto se descansa después de cada ejercicio.
 - **Rest pause.** Trabaja sobre la fatiga del fallo muscular. Las series comunes llevan su descanso, por ejemplo dos minutos. En la última serie, después de llegar al fallo, se descansa unos 20 segundos y se vuelve a levantar el mismo peso hasta el fallo. Con 80 kg en press banca, por ejemplo, la serie 1 es de 8 repeticiones, la serie 2 de 6, la serie 3 de 4, y 20 segundos después vienen 2 repeticiones más. En el registro, esa última serie lleva un tramo principal y un tramo de rest pause. El rest pause va siempre en la última serie y se hace una sola vez, para trabajar sobre la fatiga acumulada y entrenar más allá del fallo muscular. Como propuesta a confirmar, el tramo principal se compara con la vez anterior como cualquier serie, y las repeticiones del rest pause se muestran aparte, con su propia comparación.
 
+El **escalonado** es un generador de series. Se elige la cantidad de series, las repeticiones de la primera y el salto entre una serie y la siguiente, que por defecto es de menos 2. Con 4 series de 10 repeticiones se arma 10, 8, 6 y 4. El salto también puede ser positivo.
+
 La carga desde una planilla queda como una etapa posterior, después de que el armado por catálogo funcione.
+
+## Cómo se organiza en la aplicación
+
+La planificación tiene cuatro niveles, que la aplicación tiene que mostrar y dejar armar. Un ejemplo.
+
+| Nivel | Ejemplo |
+|---|---|
+| Macrociclo | "Principiante", con 4 mesociclos |
+| Mesociclo | "PPL", con 3 días |
+| Entrenamiento (día) | Push, Pull y Legs, uno por día |
+| Ejecución | Cada vez que se hace un día. Si Push se ejecuta 4 veces, hay Push 1, Push 2, Push 3 y Push 4 |
+
+La cantidad de ejecuciones es una sola para todo el mesociclo. Si hay tres días, A, B y C, cada uno se hace la misma cantidad de veces, sea 3, 4 o 6, para poder medir el progreso de manera pareja.
+
+La pantalla de planificación baja por esos niveles. Se elige un macrociclo, se ve la lista de sus mesociclos, se elige un mesociclo para ver sus días, y cada día muestra sus ejecuciones, las hechas y las que faltan.
+
+## Rutina simple y rutina avanzada
+
+Al crear una rutina se elige entre simple y avanzada, para no sobrecargar de opciones a quien recién empieza.
+
+- **Simple.** Ejercicios con series y repeticiones, y el descanso de cada uno. Todas las ejecuciones de un día son iguales.
+- **Avanzada.** Suma los protocolos (JumpSet, rest pause, escalonado) y permite que cada ejecución de un mismo día sea distinta, con otras series, repeticiones o protocolos. Al elegirla se pregunta cuántas ejecuciones va a tener.
+
+Una rutina simple se puede pasar a avanzada más adelante, sin perder lo cargado.
+
+## Descansos fijos
+
+El descanso entre series lo define la rutina, ejercicio por ejercicio (45 segundos, 1 minuto, 1:30, 2 minutos, 2:30 y así). Durante la sesión se respeta tal cual, sin botones para acortarlo ni alargarlo. Para probar la aplicación hay un modo de prueba en los ajustes, apagado por defecto, que permite adelantar el descanso.
+
+El descanso avisa de tres maneras que se suman. El color y el texto cambian a los 15 segundos (amarillo, "ya casi"), a los 10 (rojo, "preparate") y al llegar a cero (verde, "listo"). Suena un tic en los últimos tres segundos y un aviso al terminar. Y en los teléfonos que lo permiten, vibra. Sonido y vibración se apagan por separado en los ajustes.
 
 ## Peso sugerido
 
@@ -78,7 +110,7 @@ La aplicación recuerda con cuánto peso se hizo cada ejercicio la última vez y
 
 ## Técnicas y ocurrencias especiales
 
-Una prescripción puede llevar una técnica, como rest pause, que agrega un tramo al final de la serie. Una ocurrencia puede ser normal, una descarga activa o un test day. La app los trata como un tipo de ocurrencia, no como un texto libre, para poder mostrarlos y analizarlos.
+Una prescripción puede llevar una técnica, como rest pause, que agrega un tramo al final de la serie, o el escalonado, que se explica abajo. Una ocurrencia puede ser normal, una descarga activa o un test day. La app los trata como un tipo de ocurrencia, no como un texto libre, para poder mostrarlos y analizarlos.
 
 ## Series de aproximación
 

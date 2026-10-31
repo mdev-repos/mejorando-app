@@ -1,15 +1,23 @@
 import 'fake-indexeddb/auto'
+import Dexie from 'dexie'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { SEED_EXERCISES } from '../domain/catalog'
-import type { PlanItem } from '../domain/types'
-import { CaminoDB } from './db'
+import type { Mesocycle, PlanItem, Training } from '../domain/types'
+import { MejorAndoDB } from './db'
 import {
+  clearExecution,
   completeStep,
-  createTraining,
+  createDay,
+  createMacro,
+  createMeso,
+  executionStatus,
+  finishSession,
   flowOf,
+  itemsFor,
   previousSets,
   saveItems,
   seedCatalog,
+  setWeightStep,
   startSession,
   stepsOf,
 } from './queries'
@@ -35,9 +43,9 @@ const plan: PlanItem[] = [
   },
 ]
 
-let db: CaminoDB
+let db: MejorAndoDB
 beforeEach(async () => {
-  db = new CaminoDB(`test-${crypto.randomUUID()}`)
+  db = new MejorAndoDB(`test-${crypto.randomUUID()}`)
   await seedCatalog(db)
 })
 
@@ -48,15 +56,17 @@ describe('catálogo', () => {
   })
 })
 
-async function trainWith(items: PlanItem[]) {
-  const t = await createTraining(db, 'Upper A', 1_000)
-  await saveItems(db, t.id, items, 1_000)
-  return (await db.trainings.get(t.id))!
+async function trainWith(items: PlanItem[], mode: 'simple' | 'advanced' = 'simple') {
+  const macro = await createMacro(db, 'Principiante', 1_000)
+  const meso = await createMeso(db, macro.id, 'PPL', { mode, executions: 4 }, 1_000)
+  const day = await createDay(db, meso.id, 'Push', 1_000)
+  await saveItems(db, day.id, items, 1, 1_000)
+  return { meso, day: (await db.trainings.get(day.id))! }
 }
 
 async function runSession(startedAt: number, weights: number[]) {
-  const training = await trainWith(plan)
-  const session = await startSession(db, training, startedAt)
+  const { meso, day } = await trainWith(plan)
+  const session = await startSession(db, day, meso, 1, startedAt)
   const exercises = await db.exercises.toArray()
   const steps = stepsOf(session, exercises)
   let now = startedAt
@@ -116,8 +126,8 @@ describe('sesión', () => {
   })
 
   it('arranca el descanso con la hora de fin después de una serie', async () => {
-    const training = await trainWith(plan)
-    const session = await startSession(db, training, 5_000)
+    const { meso, day } = await trainWith(plan)
+    const session = await startSession(db, day, meso, 1, 5_000)
     const steps = stepsOf(session, await db.exercises.toArray())
     await completeStep(
       db,
@@ -141,9 +151,9 @@ describe('sesión', () => {
   })
 
   it('el plan queda copiado y editar el entrenamiento no cambia una sesión en curso', async () => {
-    const training = await trainWith(plan)
-    const session = await startSession(db, training, 1)
-    await saveItems(db, training.id, [], 2)
+    const { meso, day } = await trainWith(plan)
+    const session = await startSession(db, day, meso, 1, 1)
+    await saveItems(db, day.id, [], 1, 2)
     const stored = await db.sessions.get(session.id)
     expect(stored?.plan).toHaveLength(2)
   })
@@ -168,7 +178,7 @@ describe('exportar e importar', () => {
   it('una copia se puede restaurar en otro dispositivo', async () => {
     await runSession(10_000, [80, 80, 60])
     const file = JSON.parse(JSON.stringify(await exportAll(db, 99)))
-    const other = new CaminoDB(`test-${crypto.randomUUID()}`)
+    const other = new MejorAndoDB(`test-${crypto.randomUUID()}`)
     const counts = await importAll(other, file)
     expect(counts.trainings).toBe(1)
     expect(await other.sets.count()).toBe(await db.sets.count())
@@ -176,5 +186,123 @@ describe('exportar e importar', () => {
 
   it('rechaza archivos que no son de la app', async () => {
     await expect(importAll(db, { hola: 1 })).rejects.toThrow('no es una copia')
+  })
+})
+
+describe('los cuatro niveles', () => {
+  const alt: PlanItem[] = [
+    {
+      id: 'z',
+      kind: 'normal',
+      exerciseId: 'sentadilla',
+      sets: 5,
+      target: { kind: 'fixed', reps: 5 },
+      restSec: 150,
+    },
+  ]
+
+  it('una rutina simple usa los mismos ejercicios en todas las ejecuciones', async () => {
+    const { meso, day } = await trainWith(plan)
+    await saveItems(db, day.id, alt, 3)
+    const fresh = (await db.trainings.get(day.id))!
+    expect(itemsFor(fresh, 3, meso.mode)).toEqual(plan)
+  })
+
+  it('una rutina avanzada puede cambiar una ejecución y las demás siguen la primera', async () => {
+    const { meso, day } = await trainWith(plan, 'advanced')
+    await saveItems(db, day.id, alt, 3)
+    const fresh = (await db.trainings.get(day.id))!
+    expect(itemsFor(fresh, 1, meso.mode)).toEqual(plan)
+    expect(itemsFor(fresh, 2, meso.mode)).toEqual(plan)
+    expect(itemsFor(fresh, 3, meso.mode)).toEqual(alt)
+    await clearExecution(db, day.id, 3)
+    expect(itemsFor((await db.trainings.get(day.id))!, 3, meso.mode)).toEqual(plan)
+  })
+
+  it('cada sesión copia los ejercicios de su ejecución', async () => {
+    const { meso, day } = await trainWith(plan, 'advanced')
+    await saveItems(db, day.id, alt, 2)
+    const fresh = (await db.trainings.get(day.id))!
+    const session = await startSession(db, fresh, meso, 2, 10)
+    expect(session.plan).toEqual(alt)
+    expect(session).toMatchObject({ execution: 2, executionsTotal: 4, mesoName: 'PPL' })
+  })
+
+  it('muestra qué ejecuciones están hechas, cuál está en curso y cuáles faltan', async () => {
+    const { meso, day } = await trainWith(plan)
+    const first = await startSession(db, day, meso, 1, 10)
+    await finishSession(db, first.id, 20)
+    await startSession(db, day, meso, 2, 30)
+    const status = await executionStatus(db, day.id, meso.executions)
+    expect(status.map((s) => s.state)).toEqual(['done', 'active', 'pending', 'pending'])
+  })
+
+  it('los días de un mesociclo se ordenan solos', async () => {
+    const macro = await createMacro(db, 'M')
+    const meso: Mesocycle = await createMeso(db, macro.id, 'PPL')
+    const a: Training = await createDay(db, meso.id, 'Push')
+    const b: Training = await createDay(db, meso.id, 'Pull')
+    expect([a.order, b.order]).toEqual([0, 1])
+  })
+})
+
+describe('datos de la versión anterior', () => {
+  it('pasan a un macrociclo y un mesociclo propios, con sus ejecuciones numeradas', async () => {
+    const name = `old-${crypto.randomUUID()}`
+    const old = new Dexie(name)
+    old.version(1).stores({
+      exercises: 'id, group',
+      trainings: 'id, updatedAt',
+      sessions: 'id, status, startedAt',
+      sets: 'id, sessionId, exerciseId, [exerciseId+kind]',
+    })
+    await old
+      .table('trainings')
+      .add({ id: 't1', name: 'Upper A', items: [], createdAt: 1, updatedAt: 1 })
+    await old.table('sessions').bulkAdd([
+      {
+        id: 's1',
+        trainingId: 't1',
+        trainingName: 'Upper A',
+        plan: [],
+        startedAt: 10,
+        status: 'done',
+        stepIndex: 0,
+        restEndAt: null,
+        restTotalSec: 0,
+      },
+      {
+        id: 's2',
+        trainingId: 't1',
+        trainingName: 'Upper A',
+        plan: [],
+        startedAt: 20,
+        status: 'done',
+        stepIndex: 0,
+        restEndAt: null,
+        restTotalSec: 0,
+      },
+    ])
+    old.close()
+
+    const migrated = new MejorAndoDB(name)
+    expect(await migrated.macrocycles.count()).toBe(1)
+    const meso = (await migrated.mesocycles.toArray())[0]!
+    expect((await migrated.trainings.get('t1'))?.mesoId).toBe(meso.id)
+    const sessions = (await migrated.sessions.orderBy('startedAt').toArray()).map(
+      (s) => s.execution,
+    )
+    expect(sessions).toEqual([1, 2])
+  })
+})
+
+describe('ajustes por ejercicio', () => {
+  it('el paso de peso se recuerda y viaja en la copia de seguridad', async () => {
+    await setWeightStep(db, 'press-banca', 5)
+    expect((await db.exerciseSettings.get('press-banca'))?.weightStep).toBe(5)
+    const file = JSON.parse(JSON.stringify(await exportAll(db, 1)))
+    const other = new MejorAndoDB(`test-${crypto.randomUUID()}`)
+    await importAll(other, file)
+    expect((await other.exerciseSettings.get('press-banca'))?.weightStep).toBe(5)
   })
 })

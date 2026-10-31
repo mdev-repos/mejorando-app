@@ -1,8 +1,11 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { notifyRestEnd, useNow, useWakeLock } from '../../app/hooks'
-import { useExercises } from '../../app/data'
+import { useExercises, useWeightStep } from '../../app/data'
+import { useNow, useWakeLock } from '../../app/hooks'
+import { playCue } from '../../app/sound'
+import { useTestMode } from '../../app/testMode'
+import { ModuleIcon } from '../../brand/Logo'
 import { db } from '../../db/db'
 import {
   completeStep,
@@ -23,21 +26,27 @@ import {
   skipRest,
   type Step,
 } from '../../domain/session'
-import { formatRest, formatTarget } from '../../domain/targets'
-import type { Exercise, RepTarget, Session, SetLog } from '../../domain/types'
-import { GroupThumb, Ring, Stepper, TopBar, VerdictBadge } from '../../ui/components'
+import { formatNumber } from '../../domain/numbers'
+import { PHASE_LABEL, restCue, restPhase } from '../../domain/rest'
+import { formatRest, formatTarget, startReps } from '../../domain/targets'
+import type { Exercise, Session, SetLog } from '../../domain/types'
+import {
+  GroupThumb,
+  QuickChips,
+  Ring,
+  Stepper,
+  TopBar,
+  VerdictBadge,
+  WeightStepPicker,
+} from '../../ui/components'
 import { formatDate, formatDuration, itemSummary, itemTitle } from './format'
 
 type Lookup = (id: string) => Exercise | undefined
 
-function targetStart(t: RepTarget): number {
-  return t.kind === 'fixed' ? t.reps : t.kind === 'range' ? t.min : 8
-}
-
 function liftText(l: { weight: number; reps: number }, ex: Exercise | undefined): string {
   if (ex?.load === 'time') return `${l.reps} s`
   if (ex?.load === 'bodyweight' && l.weight === 0) return `${l.reps} reps`
-  return `${l.weight} kg x ${l.reps}`
+  return `${formatNumber(l.weight)} kg x ${l.reps}`
 }
 
 export function SessionScreen() {
@@ -51,7 +60,11 @@ export function SessionScreen() {
   if (session === null) {
     return (
       <>
-        <TopBar title="Entrenamiento" onBack={() => navigate('/gym')} />
+        <TopBar
+          icon={<ModuleIcon module="gym" size={36} />}
+          title="Entrenamiento"
+          onBack={() => navigate('/gym')}
+        />
         <div className="empty">No encontramos esta sesión.</div>
       </>
     )
@@ -81,8 +94,9 @@ function Active({ session, steps, byId }: { session: Session; steps: Step[]; byI
   return (
     <>
       <TopBar
+        icon={<ModuleIcon module="gym" size={36} />}
         title={session.trainingName}
-        subtitle={`Ejercicio ${Math.min(done + 1, totalItems)} de ${totalItems}`}
+        subtitle={`Ejecución ${session.execution} de ${session.executionsTotal} · ejercicio ${Math.min(done + 1, totalItems)} de ${totalItems}`}
         onBack={() => navigate('/gym')}
         right={
           <button
@@ -136,6 +150,7 @@ function ApproachView(props: {
 }) {
   const { session, step, byId } = props
   const ex = byId(step.exerciseId)
+  const [wstep] = useWeightStep(ex)
   const prev = useLiveQuery(
     () => previousSets(db, step.exerciseId, 'approach', session.id),
     [step.exerciseId, session.id],
@@ -211,7 +226,7 @@ function ApproachView(props: {
                   small
                   label="Kg"
                   value={r.weight}
-                  step={2.5}
+                  step={wstep}
                   onChange={(weight) => update(i, { weight })}
                 />
               )}
@@ -290,7 +305,7 @@ function SetView(props: {
   const lastDone = effective[effective.length - 1]
   const startWeight =
     prevSet?.weight ?? lastDone?.weight ?? approach[approach.length - 1]?.weight ?? 0
-  const startReps = prevSet?.reps ?? targetStart(step.target)
+  const initialReps = prevSet?.reps ?? startReps(step.target)
 
   return (
     <SetForm
@@ -303,7 +318,7 @@ function SetView(props: {
       effective={effective}
       approach={approach}
       startWeight={startWeight}
-      startReps={startReps}
+      startReps={initialReps}
       onDone={props.onDone}
     />
   )
@@ -323,6 +338,7 @@ function SetForm(props: {
 }) {
   const { session, step, ex, prevSet } = props
   const [weight, setWeight] = useState(props.startWeight)
+  const [wstep, setWstep] = useWeightStep(ex)
   const [reps, setReps] = useState(props.startReps)
   const setIndex = step.type === 'set' ? step.setIndex : step.round
   const total = step.type === 'set' ? step.totalSets : step.rounds
@@ -336,7 +352,7 @@ function SetForm(props: {
     <>
       <div className="scroll">
         <div className="ex">
-          <GroupThumb group={ex.group} big />
+          <GroupThumb group={ex.group} exerciseId={ex.id} big />
           <div>
             <span className="chip">{groupLabel(ex.group).toUpperCase()}</span>
             <h2>{ex.name}</h2>
@@ -414,7 +430,7 @@ function SetForm(props: {
           )}
           <div className="inputs">
             {!isTime && (
-              <Stepper label={weightLabel} value={weight} step={2.5} onChange={setWeight} />
+              <Stepper label={weightLabel} value={weight} step={wstep} onChange={setWeight} />
             )}
             <Stepper
               label={isTime ? 'Segundos' : 'Repeticiones'}
@@ -424,6 +440,17 @@ function SetForm(props: {
               onChange={setReps}
             />
           </div>
+          {!isTime && (
+            <div className="stack" style={{ marginTop: 8, gap: 4 }}>
+              {ex.load === 'external' && (
+                <QuickChips
+                  amounts={[-10, -5, 5, 10]}
+                  onPick={(d) => setWeight((w) => Math.max(0, Number((w + d).toFixed(2))))}
+                />
+              )}
+              <WeightStepPicker value={wstep} onChange={setWstep} />
+            </div>
+          )}
           <div style={{ marginTop: 10 }}>
             <VerdictBadge
               verdict={verdict}
@@ -435,11 +462,12 @@ function SetForm(props: {
       <div className="bottom">
         <button
           className="btn primary"
-          onClick={() =>
+          onClick={() => {
+            playCue('done')
             props.onDone({
               logs: [{ kind: 'effective', setIndex, weight: isTime ? 0 : weight, reps }],
             })
-          }
+          }}
         >
           Serie hecha
         </button>
@@ -505,7 +533,7 @@ function RestPauseForm(props: {
     <>
       <div className="scroll">
         <div className="ex">
-          <GroupThumb group={props.ex.group} big />
+          <GroupThumb group={props.ex.group} exerciseId={props.ex.id} big />
           <div>
             <span className="chip">REST PAUSE</span>
             <h2>{props.ex.name}</h2>
@@ -527,7 +555,7 @@ function RestPauseForm(props: {
             </div>
           )}
           <Stepper
-            label={`Repeticiones extra con ${props.weight} kg`}
+            label={`Repeticiones extra con ${formatNumber(props.weight)} kg`}
             value={extra}
             step={1}
             min={0}
@@ -599,30 +627,37 @@ function RestView({ session, steps, byId }: { session: Session; steps: Step[]; b
         )
       : undefined
   const next = describeNext(steps[flow.stepIndex], byId)
-  const buzzed = useRef(false)
+  const [testMode] = useTestMode()
+  const phase = restPhase(left)
+  const lastCue = useRef<number | undefined>(undefined)
 
+  // un tic en los últimos tres segundos y un aviso al terminar, una sola vez por segundo
   useEffect(() => {
-    if (left === 0 && !buzzed.current) {
-      buzzed.current = true
-      notifyRestEnd()
+    const cue = restCue(left)
+    if (cue && lastCue.current !== left) {
+      lastCue.current = left
+      playCue(cue)
     }
+    if (left > 3) lastCue.current = undefined
   }, [left])
 
   const change = (d: number) => void saveFlow(db, session.id, adjustRest(flow, d, Date.now()))
 
   return (
-    <>
+    <div className="restwrap" data-phase={phase}>
       <div className="rest">
-        <div className="lbl">{left === 0 ? 'LISTO' : 'DESCANSO'}</div>
+        <div className="lbl">{PHASE_LABEL[phase]}</div>
         <Ring fraction={fraction}>{formatRest(left)}</Ring>
-        <div className="two" style={{ width: '100%', marginBottom: 14 }}>
-          <button className="btn small" onClick={() => change(-15)}>
-            − 15 s
-          </button>
-          <button className="btn small" onClick={() => change(15)}>
-            + 15 s
-          </button>
-        </div>
+        {testMode && (
+          <div className="two" style={{ width: '100%', marginBottom: 14 }}>
+            <button className="btn small" onClick={() => change(-15)}>
+              − 15 s
+            </button>
+            <button className="btn small" onClick={() => change(15)}>
+              + 15 s
+            </button>
+          </div>
+        )}
         {last && (
           <div className="result">
             <div className="l1">{last.kind === 'approach' ? 'Aproximación' : 'Lo que hiciste'}</div>
@@ -642,14 +677,20 @@ function RestView({ session, steps, byId }: { session: Session; steps: Step[]; b
         )}
       </div>
       <div className="bottom">
-        <button
-          className="btn primary"
-          onClick={() => void saveFlow(db, session.id, skipRest(flow))}
-        >
-          {left === 0 ? 'Siguiente' : 'Empezar ya'}
-        </button>
+        {left > 0 && !testMode ? (
+          <button className="btn" disabled>
+            Descansando
+          </button>
+        ) : (
+          <button
+            className="btn primary"
+            onClick={() => void saveFlow(db, session.id, skipRest(flow))}
+          >
+            {left === 0 ? 'Siguiente' : 'Empezar ya'}
+          </button>
+        )}
       </div>
-    </>
+    </div>
   )
 }
 
@@ -711,6 +752,7 @@ function Summary({ session, byId }: { session: Session; byId: Lookup }) {
   return (
     <>
       <TopBar
+        icon={<ModuleIcon module="gym" size={36} />}
         title={session.trainingName}
         subtitle={`${formatDate(session.startedAt)} · ${formatDuration(session.startedAt, session.endedAt)}`}
         onBack={() => navigate('/gym')}

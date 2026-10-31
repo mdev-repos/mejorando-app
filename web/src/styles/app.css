@@ -13,6 +13,7 @@ body {
   color: var(--text);
   font-family: var(--font);
   font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
   overscroll-behavior: none;
 }
 button {
@@ -25,7 +26,7 @@ input {
   color: inherit;
 }
 a {
-  color: var(--primary);
+  color: var(--accent);
 }
 h1,
 h2,
@@ -40,7 +41,13 @@ p {
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  background: var(--bg);
+  background:
+    radial-gradient(
+      120% 55% at 50% -12%,
+      color-mix(in srgb, var(--accent) calc(var(--glow) * 100%), transparent),
+      transparent 62%
+    ),
+    var(--bg);
   padding-top: env(safe-area-inset-top);
 }
 @media (min-width: 520px) {
@@ -146,7 +153,7 @@ p {
   font-size: 0.68rem;
   letter-spacing: 0.08em;
   font-weight: 700;
-  color: var(--primary);
+  color: var(--accent);
   background: var(--tint);
   padding: 3px 8px;
   border-radius: 999px;
@@ -163,7 +170,7 @@ p {
   background: var(--tint);
   display: grid;
   place-items: center;
-  color: var(--primary);
+  color: var(--accent);
   font-weight: 800;
   font-size: 0.9rem;
   letter-spacing: 0.04em;
@@ -191,8 +198,8 @@ p {
   background: var(--surface2);
 }
 .btn.primary {
-  background: var(--primary);
-  color: var(--on-primary);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 .btn.small {
   min-height: 48px;
@@ -247,7 +254,7 @@ p {
   min-height: 56px;
 }
 .nav a.on {
-  color: var(--primary);
+  color: var(--accent);
 }
 .nav .ic {
   font-size: 1.25rem;
@@ -339,11 +346,11 @@ p {
   background: var(--surface2);
 }
 .segs span.done {
-  background: var(--primary);
+  background: var(--accent);
   opacity: 0.55;
 }
 .segs span.cur {
-  background: var(--primary);
+  background: var(--accent);
 }
 .ex {
   display: flex;
@@ -389,8 +396,8 @@ p {
   background: var(--surface2);
 }
 .set.doneset .n {
-  background: var(--primary);
-  color: var(--on-primary);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 .set.approach {
   border-style: dashed;
@@ -421,13 +428,13 @@ p {
   padding: 1px 6px;
 }
 .active-set {
-  border: 2px solid var(--primary);
+  border: 2px solid var(--accent);
   border-radius: 16px;
   padding: 12px;
   background: var(--surface);
 }
 .last {
-  color: var(--primary);
+  color: var(--accent);
   font-size: 0.85rem;
   font-weight: 600;
 }
@@ -480,7 +487,7 @@ p {
   stroke: var(--surface2);
 }
 .ring .bar {
-  stroke: var(--primary);
+  stroke: var(--accent);
   transition: stroke-dashoffset 0.25s linear;
 }
 .ring .time {
@@ -521,7 +528,7 @@ p {
 .next .l1 {
   font-size: 0.72rem;
   letter-spacing: 0.08em;
-  color: var(--primary);
+  color: var(--accent);
   font-weight: 700;
   text-transform: uppercase;
 }
@@ -542,7 +549,7 @@ p {
   margin-bottom: 8px;
 }
 .jstep.cur {
-  border: 2px solid var(--primary);
+  border: 2px solid var(--accent);
 }
 .jstep .n {
   width: 34px;
@@ -555,8 +562,8 @@ p {
   flex: none;
 }
 .jstep.cur .n {
-  background: var(--primary);
-  color: var(--on-primary);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 .jrest {
   text-align: center;
@@ -577,7 +584,7 @@ p {
   margin-bottom: 8px;
 }
 .item.cur {
-  border: 2px solid var(--primary);
+  border: 2px solid var(--accent);
 }
 .item .st {
   width: 26px;
@@ -592,8 +599,8 @@ p {
   flex: none;
 }
 .item.done .st {
-  background: var(--primary);
-  color: var(--on-primary);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 .item .nm {
   flex: 1;
@@ -617,7 +624,7 @@ p {
   background: var(--surface2);
 }
 .grp {
-  border: 1px solid var(--primary);
+  border: 1px solid var(--accent);
   border-radius: 16px;
   padding: 6px;
   margin-bottom: 8px;
@@ -627,7 +634,7 @@ p {
   font-size: 0.68rem;
   letter-spacing: 0.1em;
   font-weight: 800;
-  color: var(--primary);
+  color: var(--accent);
   padding: 4px 8px;
 }
 .grp .item {
@@ -666,7 +673,7 @@ p {
   outline: none;
 }
 .search:focus {
-  border-color: var(--primary);
+  border-color: var(--accent);
 }
 .seg {
   display: inline-flex;
@@ -686,8 +693,8 @@ p {
   min-height: 52px;
 }
 .seg button.on {
-  background: var(--primary);
-  color: var(--on-primary);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 
 /* ---- Pantalla de carga y avisos ---- */
@@ -724,8 +731,8 @@ p {
 }
 .toast button {
   border: 0;
-  background: var(--primary);
-  color: var(--on-primary);
+  background: var(--accent);
+  color: var(--on-accent);
   border-radius: 10px;
   padding: 10px 14px;
   font-weight: 700;
@@ -756,12 +763,12 @@ p {
     background 0.15s;
 }
 .switch:checked {
-  background: var(--primary);
-  border-color: var(--primary);
+  background: var(--accent);
+  border-color: var(--accent);
 }
 .switch:checked::after {
   transform: translateX(22px);
-  background: var(--on-primary);
+  background: var(--on-accent);
 }
 .switch:disabled {
   opacity: 0.5;
@@ -788,4 +795,325 @@ p {
 }
 .item .acts {
   margin-left: auto;
+}
+
+/* ---- Estilo de MejorAndo: color, relieve y tipografía ---- */
+h1,
+h2,
+h3,
+.t1,
+.btn {
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+.card,
+.set,
+.item,
+.group-btn,
+.result,
+.jstep {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--surface), white 5%), var(--surface));
+  box-shadow:
+    var(--shadow),
+    inset 0 1px 0 var(--shine);
+}
+.set.approach {
+  box-shadow: none;
+  background: transparent;
+}
+.btn {
+  box-shadow: inset 0 1px 0 var(--shine);
+}
+.btn.primary {
+  background: linear-gradient(180deg, var(--accent-lo), var(--accent-hi));
+  box-shadow:
+    0 10px 22px -10px color-mix(in srgb, var(--accent-hi) 75%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+.chip {
+  background: var(--tint);
+}
+.chip.muted {
+  background: var(--surface2);
+}
+.thumb {
+  background: linear-gradient(150deg, var(--tint), transparent 80%), var(--surface2);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
+}
+.segs span.done {
+  background: linear-gradient(90deg, var(--accent-lo), var(--accent-hi));
+  opacity: 0.55;
+}
+.segs span.cur {
+  background: linear-gradient(90deg, var(--accent-lo), var(--accent-hi));
+}
+.active-set {
+  border: 2px solid var(--accent);
+  box-shadow:
+    0 0 0 5px var(--tint),
+    var(--shadow);
+}
+.set.doneset .n,
+.item.done .st,
+.jstep.cur .n {
+  background: linear-gradient(180deg, var(--accent-lo), var(--accent-hi));
+  color: var(--on-accent);
+}
+.seg button.on {
+  background: linear-gradient(180deg, var(--accent-lo), var(--accent-hi));
+  color: var(--on-accent);
+}
+.ando {
+  background: linear-gradient(90deg, var(--a1, var(--accent-lo)), var(--a2, var(--accent-hi)));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.ando[data-m='gym'] {
+  --a1: #ff9a56;
+  --a2: #f2542d;
+}
+.ando[data-m='alimentacion'] {
+  --a1: #7be08f;
+  --a2: #27a35a;
+}
+.ando[data-m='pasos'] {
+  --a1: #6db8ff;
+  --a2: #2c79e0;
+}
+.card.tap.mcard {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+}
+.logo-mark,
+.module-icon {
+  flex: none;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.28));
+}
+.module-icon {
+  border-radius: 22%;
+}
+.wordmark {
+  display: block;
+}
+.topbar .t1 {
+  font-size: 1.2rem;
+}
+.item .st {
+  background: var(--surface2);
+}
+.nav a.on {
+  color: var(--accent);
+}
+.nav a.on .ic {
+  filter: drop-shadow(0 0 8px var(--tint));
+}
+.switch:checked {
+  background: linear-gradient(180deg, var(--accent-lo), var(--accent-hi));
+  border-color: transparent;
+}
+.stepper {
+  background: var(--surface2);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+.ring .track {
+  stroke: var(--surface2);
+}
+.ring .bar {
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 55%, transparent));
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.chip-btn {
+  min-height: 46px;
+  min-width: 64px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.chip-btn.on {
+  background: linear-gradient(180deg, var(--accent-lo), var(--accent-hi));
+  color: var(--on-accent);
+  border-color: transparent;
+}
+.dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.dot {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--surface2);
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+}
+.dot.done {
+  background: linear-gradient(180deg, var(--accent-lo), var(--accent-hi));
+  color: var(--on-accent);
+  border-color: transparent;
+}
+.dot.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--tint);
+}
+.bar-progress {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--surface2);
+  overflow: hidden;
+  margin-top: 8px;
+}
+.bar-progress i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-lo), var(--accent-hi));
+}
+.note {
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--tint);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+/* ---- Control numérico ---- */
+.stepper button {
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+.valuewrap {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  display: grid;
+  align-items: center;
+}
+.valuewrap input {
+  padding: 0 18px 0 0;
+  text-overflow: clip;
+}
+.valuewrap::after {
+  content: '✎';
+  position: absolute;
+  right: 4px;
+  top: 6px;
+  font-size: 0.7rem;
+  color: var(--muted);
+  opacity: 0.7;
+  pointer-events: none;
+}
+.valuewrap input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  border-radius: 10px;
+}
+.quick {
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+}
+.chip-btn.small {
+  min-height: 40px;
+  min-width: 56px;
+  padding: 0 10px;
+  font-size: 0.9rem;
+}
+.linkbtn {
+  background: none;
+  border: 0;
+  color: var(--muted);
+  text-align: left;
+  padding: 6px 2px;
+  min-height: 36px;
+  font-weight: 700;
+  font-size: 0.82rem;
+}
+
+/* ---- Descanso: el color cambia cuando se acerca el final ---- */
+.restwrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  transition: background 0.4s;
+}
+.restwrap[data-phase='warn'] {
+  --accent-lo: #ffd166;
+  --accent-hi: #f5a524;
+  --accent: #ffc247;
+  --tint: rgba(255, 194, 71, 0.16);
+  --on-accent: #231500;
+}
+.restwrap[data-phase='alert'] {
+  --accent-lo: #ff8f8f;
+  --accent-hi: #ef3b3b;
+  --accent: #ff5c5c;
+  --tint: rgba(255, 92, 92, 0.18);
+  --on-accent: #2a0606;
+}
+.restwrap[data-phase='done'] {
+  --accent-lo: #7be08f;
+  --accent-hi: #27a35a;
+  --accent: #3fc274;
+  --tint: rgba(63, 194, 116, 0.16);
+  --on-accent: #06210f;
+}
+.restwrap[data-phase='warn'],
+.restwrap[data-phase='alert'],
+.restwrap[data-phase='done'] {
+  background: radial-gradient(
+    120% 45% at 50% 18%,
+    color-mix(in srgb, var(--accent) 20%, transparent),
+    transparent 70%
+  );
+}
+.restwrap[data-phase='alert'] .ring {
+  animation: pulse 1s ease-in-out infinite;
+}
+.restwrap:not([data-phase='normal']) .rest .lbl,
+.restwrap:not([data-phase='normal']) .ring .time {
+  color: var(--accent);
+}
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.035);
+  }
+}
+
+.splash {
+  transition: opacity 0.45s ease;
+}
+.splash.leaving {
+  opacity: 0;
+}
+
+.thumb {
+  overflow: hidden;
+}
+.thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  background: #fff;
 }

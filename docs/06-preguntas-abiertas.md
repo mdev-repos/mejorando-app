@@ -4,9 +4,9 @@ Lo que todavía no está decidido. Cuando una pregunta se resuelve, la respuesta
 
 ## Producto
 
-1. **Revisión de marca.** El nombre Camino+ y el logo están decididos ([ADR-005](decisiones/ADR-005-nombre-y-suite.md), [ADR-006](decisiones/ADR-006-logo-y-pantalla-de-carga.md)). Antes de abrir la app al público hay que revisar si el nombre se puede usar, por ejemplo en el registro de marcas, en las tiendas de aplicaciones y en dominios.
+1. **Revisión de marca.** El nombre MejorAndo y el logo están decididos ([ADR-008](decisiones/ADR-008-mejorando-nombre-y-logo.md)). Antes de abrir la app al público hay que revisar si el nombre se puede usar, por ejemplo en el registro de marcas, en las tiendas de aplicaciones y en dominios. También falta diseñar la versión del texto final de la pantalla de carga.
 2. **Protocolos.** En el rest pause, si en la comparación las repeticiones del tramo extra se miran aparte o se suman a la serie (la propuesta es mirarlas aparte). El descanso propuesto es de 20 segundos y se puede cambiar. Además, qué otros protocolos se agregan al JumpSet y al rest pause.
-3. **Catálogo.** Cuántos ejercicios incluye al empezar, y de dónde salen las ilustraciones. Hay dos caminos. Uno es partir de un conjunto abierto de ilustraciones de ejercicios, que son dibujos y encajan con el estilo buscado, publicado con licencia CC BY-SA, que pide atribución y compartir las adaptaciones con la misma licencia. Hay que leer la licencia exacta de cada repositorio antes de usarlo. El otro es generarlas para el proyecto, con el costo de lograr un estilo parejo. Otro conjunto de datos muy conocido de ejercicios quedó descartado hasta que aclare la licencia de sus imágenes.
+3. **Catálogo.** Resuelto en parte con ADR-012, hay 31 ilustraciones de 40. Falta decidir cuántos ejercicios incluye al empezar y cómo cubrir los que no tienen dibujo.
 4. **Contenido de la landing y de la ayuda.** Cómo se explica sacarle más provecho a la app, y a qué creadores de contenido se recomienda además del entrenador del que aprendió el autor.
 5. **Carga de rutinas desde una planilla.** Si se agrega después del armado por catálogo, y con qué formato.
 

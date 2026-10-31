@@ -2,7 +2,7 @@
 
 ## Estado
 
-Aceptada, 2026-10-26.
+Aceptada en parte, 2026-10-26. La paleta índigo fue reemplazada por [ADR-009](ADR-009-estetica-y-tipografia.md). Siguen vigentes los dos temas, el gris suave del claro y que el resultado no dependa solo del color.
 
 ## Contexto
 

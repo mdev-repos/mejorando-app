@@ -1,0 +1,30 @@
+# ADR-012 Ilustraciones de ejercicios
+
+Estado: Aceptada
+
+## Contexto
+
+La app necesitaba una imagen por ejercicio para sentirse completa. Había que elegir entre dibujarlas, usar un conjunto abierto o dejar solo las iniciales del grupo muscular.
+
+## Decisión
+
+Se usan las ilustraciones del proyecto Everkinetic (Greg Priday), publicadas con licencia CC BY-SA 4.0. Se toma la primera pose de cada ejercicio, se centra en un cuadrado blanco de 240 px y se guarda como WebP en `web/public/exercises/<id>.webp`. Son 31 de los 40 ejercicios del catálogo, unos 250 KB en total.
+
+Los ejercicios sin dibujo equivalente siguen mostrando las iniciales del grupo muscular, porque la imagen se carga con una alternativa. Hoy son fondos en paralelas, remo con mancuerna, face pull, sentadilla búlgara, hip thrust, patada de tríceps, patada de glúteo en polea, curl inclinado y plancha.
+
+## Licencia
+
+- Atribución. Se acredita al proyecto y al autor, con enlace al repositorio y a la licencia, en Ajustes y en el README.
+- Se indica que hubo cambios de formato y tamaño. Cambiar de formato no es una adaptación del dibujo.
+- Las ilustraciones conservan CC BY-SA 4.0. Si en algún momento se redibujan o se retocan, esas versiones deben publicarse con la misma licencia. El código de la app no cambia de licencia.
+
+## Alternativas
+
+- Dibujarlas para el proyecto, con el costo de lograr un estilo parejo.
+- Otro conjunto de datos conocido, descartado porque la licencia de sus imágenes no está clara.
+
+## Consecuencias
+
+- La app se ve completa sin costo de dibujo.
+- Las imágenes quedan en el precache de la PWA y funcionan sin conexión.
+- Cuando se agreguen ejercicios nuevos, se buscan en el mismo conjunto antes de usar iniciales.

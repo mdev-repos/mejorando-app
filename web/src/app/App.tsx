@@ -6,10 +6,13 @@ import { seedCatalog } from '../db/queries'
 import { AddItem } from '../features/gym/AddItem'
 import { GymHome } from '../features/gym/GymHome'
 import { SessionScreen } from '../features/gym/Session'
-import { TrainingEditor } from '../features/gym/TrainingEditor'
+import { DayEditor } from '../features/gym/DayEditor'
+import { MacroScreen } from '../features/gym/MacroScreen'
+import { MesoScreen } from '../features/gym/MesoScreen'
 import { Home } from '../features/home/Home'
 import { Settings } from '../features/settings/Settings'
 import { BottomNav } from '../ui/components'
+import { unlockAudio } from './sound'
 import { useApplyTheme } from './theme'
 
 const TOP_LEVEL = new Set(['/', '/gym', '/ajustes'])
@@ -17,12 +20,14 @@ const TOP_LEVEL = new Set(['/', '/gym', '/ajustes'])
 function Shell() {
   const { pathname } = useLocation()
   return (
-    <div className="app">
+    <div className="app" data-module={pathname.startsWith('/gym') ? 'gym' : 'suite'}>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/gym" element={<GymHome />} />
-        <Route path="/gym/entrenamiento/:id" element={<TrainingEditor />} />
-        <Route path="/gym/entrenamiento/:id/agregar" element={<AddItem />} />
+        <Route path="/gym/macro/:id" element={<MacroScreen />} />
+        <Route path="/gym/meso/:id" element={<MesoScreen />} />
+        <Route path="/gym/dia/:id" element={<DayEditor />} />
+        <Route path="/gym/dia/:id/agregar" element={<AddItem />} />
         <Route path="/gym/sesion/:sid" element={<SessionScreen />} />
         <Route path="/ajustes" element={<Settings />} />
         <Route path="*" element={<Home />} />
@@ -33,8 +38,10 @@ function Shell() {
 }
 
 function alreadyShown(): boolean {
+  // con ?splash en la dirección se fuerza la pantalla de carga, para revisarla
+  if (new URLSearchParams(window.location.search).has('splash')) return false
   try {
-    return sessionStorage.getItem('camino.splash') === '1'
+    return sessionStorage.getItem('mejorando.splash') === '1'
   } catch {
     return false
   }
@@ -45,13 +52,19 @@ export function App({ splash = true }: { splash?: boolean }) {
   const [splashDone, setSplashDone] = useState(!splash || alreadyShown())
   useApplyTheme()
 
+  // los navegadores solo dejan sonar después del primer toque
+  useEffect(() => {
+    window.addEventListener('pointerdown', unlockAudio, { once: true })
+    return () => window.removeEventListener('pointerdown', unlockAudio)
+  }, [])
+
   useEffect(() => {
     void seedCatalog(db).then(() => setReady(true))
   }, [])
 
   const finishSplash = useCallback(() => {
     try {
-      sessionStorage.setItem('camino.splash', '1')
+      sessionStorage.setItem('mejorando.splash', '1')
     } catch {
       /* sin almacenamiento de sesión */
     }

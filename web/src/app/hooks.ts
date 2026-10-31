@@ -37,27 +37,3 @@ export function useWakeLock(active: boolean): void {
     }
   }, [active])
 }
-
-/** Aviso al terminar el descanso, con sonido corto y vibración si el teléfono lo permite. */
-export function notifyRestEnd(): void {
-  try {
-    navigator.vibrate?.([200, 100, 200])
-  } catch {
-    /* sin vibración */
-  }
-  try {
-    const Ctx = window.AudioContext
-    const ctx = new Ctx()
-    const osc = ctx.createOscillator()
-    const gain = ctx.createGain()
-    osc.frequency.value = 880
-    gain.gain.value = 0.08
-    osc.connect(gain)
-    gain.connect(ctx.destination)
-    osc.start()
-    osc.stop(ctx.currentTime + 0.25)
-    osc.onended = () => void ctx.close()
-  } catch {
-    /* sin audio */
-  }
-}

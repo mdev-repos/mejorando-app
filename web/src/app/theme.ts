@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { setPref, usePref } from './prefs'
 
 export type ThemePref = 'sistema' | 'oscuro' | 'claro'
-const KEY = 'camino.tema'
+const KEY = 'mejorando.tema'
 
 export function useThemePref(): [ThemePref, (t: ThemePref) => void] {
   const raw = usePref(KEY, 'sistema')

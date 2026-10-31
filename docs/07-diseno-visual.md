@@ -16,32 +16,17 @@ La aplicación tiene tema oscuro y tema claro, y por defecto sigue el del teléf
 
 El tema claro no usa blanco puro. El fondo es un gris suave, las tarjetas son apenas más claras que el fondo y el texto es un gris casi negro en lugar de negro. En el tema oscuro el fondo tampoco es negro puro, para que el contraste no canse. En los dos casos el color principal cambia de tono para mantener buena legibilidad sobre cada fondo.
 
-## Paletas
+## Color, tipografía y relieve
 
-| | Opción A, Índigo | Opción B, Ámbar |
-|---|---|---|
-| Carácter | Frío, sobrio, tecnológico | Cálido, enérgico, de gimnasio |
-| Principal (oscuro) | `#8A97FF` | `#F5A524` |
-| Principal (claro) | `#4A5AD0` | `#B86A00` |
-| Fondo (oscuro / claro) | `#0E1117` / `#E8EBF1` | `#12100D` / `#EAE6DD` |
-| Tarjeta (oscuro / claro) | `#161A23` / `#F5F6F9` | `#1B1814` / `#F6F3EC` |
-| Texto (oscuro / claro) | `#E8EBF2` / `#1B1F2B` | `#EFEAE0` / `#241F16` |
+La estética actual está en [ADR-009](decisiones/ADR-009-estetica-y-tipografia.md). Cada módulo tiene su color, EntrenAndo naranja, AlimentAndo verde y CaminAndo azul, sobre una base oscura o clara según el tema del teléfono. La suite tiene su propio color, el violeta, que es el de "Ando" en el nombre. La tipografía es Figtree, con cifras de ancho fijo. Las tarjetas y los botones llevan un relieve suave y un degradé. Hay capturas en [diseno/capturas](diseno/capturas).
 
-Colores de resultado, iguales en las dos paletas.
-
-| Resultado | Oscuro | Claro |
-|---|---|---|
-| Mejoró | `#43D69A` | `#17794F` |
-| Igual | gris del texto secundario | gris del texto secundario |
-| Por debajo | `#FF7A7A` | `#B83232` |
-
-La paleta elegida es la **opción A, índigo**, registrada en [ADR-002](decisiones/ADR-002-identidad-visual.md). El ámbar queda en el boceto solo como referencia.
+Los colores de la paleta índigo anterior, que figuran en el boceto interactivo y en [ADR-002](decisiones/ADR-002-identidad-visual.md), ya no se usan. Se conserva de esa decisión el criterio de los temas, el gris suave del claro y que el resultado nunca dependa solo del color.
 
 ## Imagen y logo
 
 La miniatura junto al nombre del ejercicio es la imagen del ejercicio, o un ícono del músculo o equipamiento si no hay imagen. Al tocarla se agranda y muestra el enlace al video si existe.
 
-El logo de Camino+ es una C con un degradé que gana color y la palabra "Plus +" dentro, como se registra en [ADR-006](decisiones/ADR-006-logo-y-pantalla-de-carga.md). Para tamaños chicos se usa la C sin texto. La pantalla de carga muestra huellas que aparecen una a una hasta llegar al "Plus +". El logo no aparece durante la sesión de entrenamiento. Va en la landing, en el ícono de instalación, en la pantalla de carga y como marca chica en las pantallas de gestión. Los archivos están en [diseno/logo](diseno/logo).
+El logo de MejorAndo es un círculo de tres sectores que comparten sus bordes, uno por módulo, con una kettlebell sobre naranja, un bowl de ensalada con un tenedor sobre verde y unas huellas sobre azul, como se registra en [ADR-008](decisiones/ADR-008-mejorando-nombre-y-logo.md). Cada módulo usa su sector como ícono propio, junto al nombre de su sección. La pantalla de carga muestra huellas que aparecen una a una, y se mantiene de [ADR-006](decisiones/ADR-006-logo-y-pantalla-de-carga.md). El logo no aparece durante la sesión de entrenamiento. Va en la landing, en el ícono de instalación, en la pantalla de carga y como marca chica en las pantallas de gestión. Los archivos están en [diseno/logo](diseno/logo) y [diseno/logo/exploracion](diseno/logo/exploracion).
 
 ## Pantallas del entrenamiento
 

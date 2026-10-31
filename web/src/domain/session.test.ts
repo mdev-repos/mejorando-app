@@ -9,6 +9,7 @@ import {
   restRemainingSec,
   skipRest,
 } from './session'
+import { escalonado, targetForSet } from './targets'
 import type { PlanItem } from './types'
 
 const lookup = (id: string) => SEED_EXERCISES.find((e) => e.id === id)
@@ -108,5 +109,34 @@ describe('flujo y descansos', () => {
     const done = advance(last, steps, 5_000)
     expect(done.restEndAt).toBeNull()
     expect(isFinished(done, steps)).toBe(true)
+  })
+})
+
+describe('escalonado', () => {
+  it('arma 10, 8, 6 y 4 con 4 series, 10 repeticiones y un salto de menos 2', () => {
+    expect(escalonado(4, 10, -2)).toEqual({ kind: 'sequence', reps: [10, 8, 6, 4] })
+  })
+
+  it('el salto puede ser positivo y nunca baja de 1 repetición', () => {
+    expect(escalonado(3, 6, 2)).toEqual({ kind: 'sequence', reps: [6, 8, 10] })
+    expect(escalonado(5, 4, -2)).toEqual({ kind: 'sequence', reps: [4, 2, 1, 1, 1] })
+  })
+
+  it('cada serie de la sesión pide su cantidad', () => {
+    const item: PlanItem = {
+      id: 'e',
+      kind: 'normal',
+      exerciseId: 'press-banca',
+      sets: 4,
+      target: escalonado(4, 10, -2),
+      restSec: 90,
+    }
+    const sets = buildSteps([item], lookup).filter((s) => s.type === 'set')
+    expect(sets.map((s) => s.type === 'set' && targetForSet(s.target, 1))).toEqual([
+      { kind: 'fixed', reps: 10 },
+      { kind: 'fixed', reps: 8 },
+      { kind: 'fixed', reps: 6 },
+      { kind: 'fixed', reps: 4 },
+    ])
   })
 })

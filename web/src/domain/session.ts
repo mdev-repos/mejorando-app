@@ -1,4 +1,5 @@
 import type { MuscleGroupId } from './muscles'
+import { targetForSet } from './targets'
 import type { Exercise, PlanItem, RepTarget } from './types'
 
 /** Un paso de la sesión guiada. Después de cada paso puede venir un descanso (restAfterSec). */
@@ -72,7 +73,7 @@ export function buildSteps(items: PlanItem[], lookup: ExerciseLookup): Step[] {
           exerciseId: item.exerciseId,
           setIndex: i,
           totalSets: item.sets,
-          target: item.target,
+          target: targetForSet(item.target, i),
           restPauseNext,
           restAfterSec: restPauseNext ? item.restPauseSec : item.restSec,
         })

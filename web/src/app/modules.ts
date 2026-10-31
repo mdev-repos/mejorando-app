@@ -1,7 +1,8 @@
 import { setPref, usePref } from './prefs'
+import type { ModuleId } from '../brand/Logo'
 
 export interface ModuleDef {
-  id: 'gym' | 'alimentacion' | 'peso' | 'pasos'
+  id: ModuleId
   name: string
   blurb: string
   available: boolean
@@ -12,17 +13,21 @@ export interface ModuleDef {
 export const MODULES: ModuleDef[] = [
   {
     id: 'gym',
-    name: 'Gym+',
+    name: 'EntrenAndo',
     blurb: 'Planificá y registrá tu entrenamiento de fuerza.',
     available: true,
     path: '/gym',
   },
-  { id: 'alimentacion', name: 'Alimentación+', blurb: 'Comidas y macros.', available: false },
-  { id: 'peso', name: 'Peso+', blurb: 'Peso y medidas.', available: false },
-  { id: 'pasos', name: 'Pasos+', blurb: 'Pasos y actividad diaria.', available: false },
+  {
+    id: 'alimentacion',
+    name: 'AlimentAndo',
+    blurb: 'Calorías, peso y medidas.',
+    available: false,
+  },
+  { id: 'pasos', name: 'CaminAndo', blurb: 'Tus pasos de cada día.', available: false },
 ]
 
-const KEY = 'camino.modulos'
+const KEY = 'mejorando.modulos'
 
 function parse(raw: string): Record<string, boolean> {
   try {

@@ -2,7 +2,7 @@
 
 ## Estado
 
-Aceptada, 2026-10-31.
+Aceptada en parte, 2026-10-31. El logo de la C con "Plus +" fue reemplazado por [ADR-008](ADR-008-mejorando-nombre-y-logo.md). La pantalla de carga con huellas sigue vigente.
 
 ## Contexto
 
@@ -12,7 +12,7 @@ Con el nombre Camino+ ([ADR-005](ADR-005-nombre-y-suite.md)) hacía falta un log
 
 - **Logo.** Una C grande, con las puntas cortadas rectas, y la palabra "Plus +" dentro. La C lleva un degradé que va ganando color, de pálido a intenso.
 - **Logo chico.** La misma C con el degradé y sin texto, para tamaños de 32 px o menos, donde el texto no se lee.
-- **Pantalla de carga.** Seis huellas, derecha e izquierda alternadas, que aparecen una a una desde abajo y van ganando color hasta llegar al "Plus +". Se anima sola y respeta la preferencia de reducir el movimiento.
+- **Pantalla de carga.** Seis huellas, derecha e izquierda alternadas, que aparecen una a una desde abajo hasta llegar al nombre de la app. Se anima sola y respeta la preferencia de reducir el movimiento.
 - Las formas salen de los archivos de diseño hechos en Canva, calcados a trazos. Los colores salen de la paleta de [ADR-002](ADR-002-identidad-visual.md) en sus dos temas.
 - Los archivos fuente están en `docs/diseno/logo`.
 

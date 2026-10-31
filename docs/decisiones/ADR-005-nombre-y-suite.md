@@ -2,7 +2,7 @@
 
 ## Estado
 
-Aceptada, 2026-10-31. Falta la revisión de marca antes de abrir la app al público.
+Reemplazada por [ADR-008](ADR-008-mejorando-nombre-y-logo.md), 2026-10-31.
 
 ## Contexto
 

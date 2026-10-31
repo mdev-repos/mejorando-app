@@ -9,7 +9,7 @@ export function UpdatePrompt() {
   if (!needRefresh) return null
   return (
     <div className="toast" role="status">
-      <div className="grow">Hay una versión nueva de Camino+</div>
+      <div className="grow">Hay una versión nueva de MejorAndo</div>
       <button onClick={() => void updateServiceWorker(true)}>Actualizar</button>
     </div>
   )

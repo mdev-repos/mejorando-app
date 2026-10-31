@@ -1,15 +1,48 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useNavigate } from 'react-router-dom'
+import { ModuleIcon, ModuleName } from '../../brand/Logo'
 import { db } from '../../db/db'
-import { createTraining } from '../../db/queries'
+import { createMacro } from '../../db/queries'
 import { TopBar } from '../../ui/components'
 import { formatDate, formatDuration } from './format'
+import { macroProgress } from './progress'
+
+function MacroCard({ id, name }: { id: string; name: string }) {
+  const navigate = useNavigate()
+  const mesos = useLiveQuery(
+    () =>
+      db.mesocycles
+        .where('macroId')
+        .equals(id)
+        .filter((m) => !m.deletedAt)
+        .count(),
+    [id],
+  )
+  const progress = useLiveQuery(() => macroProgress(db, id), [id])
+  const pct = progress && progress.total ? (progress.done / progress.total) * 100 : 0
+  return (
+    <button className="card tap" onClick={() => navigate(`/gym/macro/${id}`)}>
+      <div className="t1">{name}</div>
+      <div className="t2">
+        {mesos === 0
+          ? 'Sin mesociclos todavía'
+          : `${mesos} ${mesos === 1 ? 'mesociclo' : 'mesociclos'}`}
+        {progress && progress.total > 0 && ` · ${progress.done} de ${progress.total} ejecuciones`}
+      </div>
+      {progress && progress.total > 0 && (
+        <div className="bar-progress" aria-hidden>
+          <i style={{ width: `${pct}%` }} />
+        </div>
+      )}
+    </button>
+  )
+}
 
 export function GymHome() {
   const navigate = useNavigate()
-  const trainings = useLiveQuery(
+  const macros = useLiveQuery(
     async () =>
-      (await db.trainings.orderBy('updatedAt').reverse().toArray()).filter((t) => !t.deletedAt),
+      (await db.macrocycles.orderBy('updatedAt').reverse().toArray()).filter((m) => !m.deletedAt),
     [],
   )
   const active = useLiveQuery(() => db.sessions.where('status').equals('active').first(), [])
@@ -22,14 +55,18 @@ export function GymHome() {
   )
 
   async function create() {
-    const n = (trainings?.length ?? 0) + 1
-    const t = await createTraining(db, `Entrenamiento ${n}`)
-    navigate(`/gym/entrenamiento/${t.id}`)
+    const n = (macros?.length ?? 0) + 1
+    const m = await createMacro(db, `Macrociclo ${n}`)
+    navigate(`/gym/macro/${m.id}`)
   }
 
   return (
     <>
-      <TopBar title="Gym+" subtitle="Entrenamiento de fuerza" />
+      <TopBar
+        icon={<ModuleIcon module="gym" size={44} />}
+        title={<ModuleName name="EntrenAndo" module="gym" />}
+        subtitle="Entrenamiento de fuerza"
+      />
       <div className="scroll">
         {active && (
           <button className="card tap" onClick={() => navigate(`/gym/sesion/${active.id}`)}>
@@ -37,35 +74,27 @@ export function GymHome() {
             <div className="t1" style={{ marginTop: 8 }}>
               {active.trainingName}
             </div>
-            <div className="t2">Tocá para continuar</div>
+            <div className="t2">
+              Ejecución {active.execution} de {active.executionsTotal} · tocá para continuar
+            </div>
           </button>
         )}
 
-        <div className="sect">Mis entrenamientos</div>
+        <div className="sect">Mis macrociclos</div>
         <div className="stack">
-          {trainings?.map((t) => (
-            <button
-              key={t.id}
-              className="card tap"
-              onClick={() => navigate(`/gym/entrenamiento/${t.id}`)}
-            >
-              <div className="t1">{t.name}</div>
-              <div className="t2">
-                {t.items.length === 0
-                  ? 'Vacío, agregá ejercicios'
-                  : `${t.items.length} ${t.items.length === 1 ? 'ejercicio' : 'ejercicios'}`}
-              </div>
-            </button>
+          {macros?.map((m) => (
+            <MacroCard key={m.id} id={m.id} name={m.name} />
           ))}
-          {trainings?.length === 0 && (
+          {macros?.length === 0 && (
             <div className="empty">
-              Todavía no armaste ningún entrenamiento.
+              Todavía no armaste nada.
               <br />
-              Creá el primero y elegí los ejercicios con unos toques.
+              Un macrociclo agrupa tus rutinas, por ejemplo &quot;Principiante&quot;, y cada rutina
+              tiene sus días.
             </div>
           )}
           <button className="btn small primary" onClick={create}>
-            + Nuevo entrenamiento
+            + Nuevo macrociclo
           </button>
         </div>
 
@@ -81,9 +110,12 @@ export function GymHome() {
                 >
                   <div className="row">
                     <div className="grow">
-                      <div className="t1">{s.trainingName}</div>
+                      <div className="t1">
+                        {s.trainingName} · {s.execution}
+                      </div>
                       <div className="t2">
-                        {formatDate(s.startedAt)} · {formatDuration(s.startedAt, s.endedAt)}
+                        {s.mesoName} · {formatDate(s.startedAt)} ·{' '}
+                        {formatDuration(s.startedAt, s.endedAt)}
                       </div>
                     </div>
                     <span aria-hidden>→</span>

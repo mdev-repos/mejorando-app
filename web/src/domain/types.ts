@@ -17,6 +17,8 @@ export type RepTarget =
   | { kind: 'fixed'; reps: number }
   | { kind: 'range'; min: number; max: number }
   | { kind: 'failure' }
+  /** Una cantidad por serie, por ejemplo 10 | 8 | 6 | 4 en un escalonado. */
+  | { kind: 'sequence'; reps: number[] }
 
 interface ItemBase {
   id: string
@@ -57,13 +59,52 @@ export interface JumpSetItem extends ItemBase {
 
 export type PlanItem = NormalItem | RestPauseItem | JumpSetItem
 
-export interface Training {
+/** Un período largo, por ejemplo "Principiante", que agrupa mesociclos. */
+export interface Macrocycle {
   id: string
   name: string
-  items: PlanItem[]
   createdAt: number
   updatedAt: number
   deletedAt?: number
+}
+
+export type RoutineMode = 'simple' | 'advanced'
+
+/**
+ * Una rutina con sus días, por ejemplo "PPL". Cada día se hace la misma cantidad de veces,
+ * que son las ejecuciones, para poder medir el progreso de manera pareja.
+ */
+export interface Mesocycle {
+  id: string
+  macroId: string
+  name: string
+  order: number
+  mode: RoutineMode
+  executions: number
+  createdAt: number
+  updatedAt: number
+  deletedAt?: number
+}
+
+/** Un día de la rutina, por ejemplo "Push". */
+export interface Training {
+  id: string
+  mesoId: string
+  name: string
+  order: number
+  /** Los ejercicios de la primera ejecución, y de las demás si no se personalizan. */
+  items: PlanItem[]
+  /** En una rutina avanzada, las ejecuciones que difieren de la primera. */
+  executionItems?: Record<number, PlanItem[]>
+  createdAt: number
+  updatedAt: number
+  deletedAt?: number
+}
+
+/** Lo que cada persona ajusta de un ejercicio, como cuánto peso sube en cada toque. */
+export interface ExerciseSettings {
+  exerciseId: string
+  weightStep: number
 }
 
 export type SetKind = 'approach' | 'effective'
@@ -89,6 +130,11 @@ export interface Session {
   id: string
   trainingId: string
   trainingName: string
+  mesoId: string
+  mesoName: string
+  /** Número de ejecución de este día, desde 1, y cuántas tiene el mesociclo. */
+  execution: number
+  executionsTotal: number
   /** Copia del plan al empezar, para que editar el entrenamiento no rompa una sesión en curso. */
   plan: PlanItem[]
   startedAt: number

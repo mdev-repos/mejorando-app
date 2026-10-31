@@ -17,9 +17,14 @@ Cada archivo se llama `ADR-NNN-titulo-corto.md` y tiene estas secciones.
 | Número | Decisión | Estado |
 |---|---|---|
 | [ADR-001](ADR-001-plataforma-pwa-offline-first.md) | Plataforma, PWA con enfoque offline-first | Aceptada |
-| [ADR-002](ADR-002-identidad-visual.md) | Identidad visual, paleta índigo con tema claro y oscuro | Aceptada |
+| [ADR-002](ADR-002-identidad-visual.md) | Identidad visual, paleta índigo con tema claro y oscuro | Aceptada en parte |
 | [ADR-003](ADR-003-stack-del-cliente.md) | Stack del cliente, React, TypeScript, Vite, Workbox y Dexie | Aceptada |
 | [ADR-004](ADR-004-uso-sin-cuenta.md) | Uso sin cuenta, con cuenta opcional para sincronizar | Aceptada |
-| [ADR-005](ADR-005-nombre-y-suite.md) | Nombre y estructura de suite, Camino+ con módulos | Aceptada |
-| [ADR-006](ADR-006-logo-y-pantalla-de-carga.md) | Logo y pantalla de carga | Aceptada |
+| [ADR-005](ADR-005-nombre-y-suite.md) | Nombre y estructura de suite, Camino+ con módulos | Reemplazada |
+| [ADR-006](ADR-006-logo-y-pantalla-de-carga.md) | Logo y pantalla de carga | Aceptada en parte |
 | [ADR-007](ADR-007-repositorio-y-publicacion.md) | Repositorio único y publicación de pruebas | Aceptada |
+| [ADR-008](ADR-008-mejorando-nombre-y-logo.md) | MejorAndo, nombre de la suite y logo de tres sectores | Aceptada |
+| [ADR-009](ADR-009-estetica-y-tipografia.md) | Estética de MejorAndo, un color por módulo y Figtree | Aceptada |
+| [ADR-010](ADR-010-cuatro-niveles-y-descansos-fijos.md) | Planificación en cuatro niveles y descansos fijos | Aceptada |
+| [ADR-011](ADR-011-avisos-del-descanso-y-control-numerico.md) | Avisos del descanso y control numérico | Aceptada |
+| [ADR-012](ADR-012-ilustraciones-de-ejercicios.md) | Ilustraciones de ejercicios con licencia CC BY-SA | Aceptada |

@@ -1,6 +1,6 @@
-# Camino+ | Documentación de diseño
+# MejorAndo | Documentación de diseño
 
-Camino+ es una suite de herramientas para el celular que acompaña el proceso de mejorar la salud. Empieza por Gym+, el entrenamiento de fuerza, y más adelante suma alimentación, peso y pasos. Esta carpeta es el lugar donde se decide cómo es, y cada decisión queda escrita con su motivo.
+MejorAndo es una suite de herramientas para el celular que acompaña el proceso de mejorar la salud. Empieza por EntrenAndo, el entrenamiento de fuerza, y más adelante suma alimentación, peso y pasos. Esta carpeta es el lugar donde se decide cómo es, y cada decisión queda escrita con su motivo.
 
 El proyecto se diseña y se construye junto con un agente de IA, que programa a partir de estos documentos. Por eso los documentos tienen que ser claros y mantenerse al día, porque son el acuerdo entre quien decide y quien construye.
 
@@ -19,7 +19,7 @@ El proyecto se diseña y se construye junto con un agente de IA, que programa a 
 
 ## Estado
 
-Fase actual, primer esqueleto de Gym+ en construcción. Las decisiones ya tomadas están en la carpeta de decisiones. Lo que falta definir está en las preguntas abiertas.
+Fase actual, primer esqueleto de EntrenAndo en construcción. Las decisiones ya tomadas están en la carpeta de decisiones. Lo que falta definir está en las preguntas abiertas.
 
 ## Reglas de la documentación
 
