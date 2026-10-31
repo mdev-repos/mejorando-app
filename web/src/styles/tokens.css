@@ -1,0 +1,76 @@
+/* Paleta índigo con tema oscuro y claro (ADR-002). Por defecto sigue el tema del teléfono. */
+:root {
+  --radius: 16px;
+  --font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color-scheme: dark;
+  --bg: #0e1117;
+  --surface: #161a23;
+  --surface2: #1f2531;
+  --border: #2b3242;
+  --text: #e8ebf2;
+  --muted: #9ba4b7;
+  --primary: #8a97ff;
+  --on-primary: #0e1117;
+  --tint: rgba(138, 151, 255, 0.14);
+  --up: #43d69a;
+  --down: #ff7a7a;
+  --approach: #6f7aa8;
+  --foot-near: #7c8bff;
+  --foot-far: #e3e6ff;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) {
+    color-scheme: light;
+    --bg: #e8ebf1;
+    --surface: #f5f6f9;
+    --surface2: #dce0e9;
+    --border: #c6ccd9;
+    --text: #1b1f2b;
+    --muted: #586177;
+    --primary: #4a5ad0;
+    --on-primary: #f5f6f9;
+    --tint: rgba(74, 90, 208, 0.12);
+    --up: #17794f;
+    --down: #b83232;
+    --approach: #7f88a8;
+    --foot-near: #4a5ad0;
+    --foot-far: #d3d8f4;
+  }
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #e8ebf1;
+  --surface: #f5f6f9;
+  --surface2: #dce0e9;
+  --border: #c6ccd9;
+  --text: #1b1f2b;
+  --muted: #586177;
+  --primary: #4a5ad0;
+  --on-primary: #f5f6f9;
+  --tint: rgba(74, 90, 208, 0.12);
+  --up: #17794f;
+  --down: #b83232;
+  --approach: #7f88a8;
+  --foot-near: #4a5ad0;
+  --foot-far: #d3d8f4;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #0e1117;
+  --surface: #161a23;
+  --surface2: #1f2531;
+  --border: #2b3242;
+  --text: #e8ebf2;
+  --muted: #9ba4b7;
+  --primary: #8a97ff;
+  --on-primary: #0e1117;
+  --tint: rgba(138, 151, 255, 0.14);
+  --up: #43d69a;
+  --down: #ff7a7a;
+  --approach: #6f7aa8;
+  --foot-near: #7c8bff;
+  --foot-far: #e3e6ff;
+}

@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="es" data-theme="dark" data-palette="indigo">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GymApp | Prototipo de pantallas</title>
+<style>
+/* ---------- Paletas y temas (variables) ---------- */
+:root {
+  --radius: 16px;
+  --up: #43D69A; --down: #FF7A7A;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+:root[data-theme="dark"][data-palette="indigo"] {
+  --bg:#0E1117; --surface:#161A23; --surface2:#1F2531; --border:#2B3242; --text:#E8EBF2; --muted:#9BA4B7;
+  --primary:#8A97FF; --on-primary:#0E1117; --tint: rgba(138,151,255,.14);
+}
+:root[data-theme="light"][data-palette="indigo"] {
+  --bg:#E8EBF1; --surface:#F5F6F9; --surface2:#DCE0E9; --border:#C6CCD9; --text:#1B1F2B; --muted:#586177;
+  --primary:#4A5AD0; --on-primary:#F5F6F9; --tint: rgba(74,90,208,.12);
+  --up:#17794F; --down:#B83232;
+}
+:root[data-theme="dark"][data-palette="ambar"] {
+  --bg:#12100D; --surface:#1B1814; --surface2:#26211B; --border:#3A332A; --text:#EFEAE0; --muted:#A89F8E;
+  --primary:#F5A524; --on-primary:#1B1200; --tint: rgba(245,165,36,.14);
+}
+:root[data-theme="light"][data-palette="ambar"] {
+  --bg:#EAE6DD; --surface:#F6F3EC; --surface2:#DDD7C9; --border:#C9C1AF; --text:#241F16; --muted:#6B624F;
+  --primary:#B86A00; --on-primary:#FFF8EC; --tint: rgba(184,106,0,.13);
+  --up:#17794F; --down:#B83232;
+}
+
+* { box-sizing: border-box; }
+body { margin:0; background:var(--bg); color:var(--text); font-family:var(--font); font-variant-numeric: tabular-nums; transition: background .2s; }
+button { font: inherit; color: inherit; cursor: pointer; }
+
+/* ---------- Controles del prototipo (no son parte de la app) ---------- */
+.lab { padding: 14px 16px 6px; max-width: 760px; margin: 0 auto; }
+.lab h1 { font-size: 1.05rem; margin: 0 0 4px; }
+.lab p { margin: 0 0 10px; color: var(--muted); font-size: .85rem; }
+.row { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px; }
+.seg { display:inline-flex; border:1px solid var(--border); border-radius:999px; overflow:hidden; background:var(--surface); }
+.seg button { border:0; background:transparent; padding:8px 14px; font-size:.85rem; color:var(--muted); }
+.seg button.on { background: var(--primary); color: var(--on-primary); font-weight:600; }
+
+/* ---------- Teléfono ---------- */
+.stage { display:flex; justify-content:center; padding: 10px 12px 24px; }
+.phone { width: min(390px, 100%); height: 800px; background: var(--bg); border: 1px solid var(--border); border-radius: 30px; overflow: hidden; display:flex; flex-direction:column; position:relative; box-shadow: 0 10px 40px rgba(0,0,0,.25); }
+.screen { display:none; flex-direction:column; height:100%; }
+.screen.on { display:flex; }
+
+.topbar { display:flex; align-items:center; gap:10px; padding: 14px 14px 8px; }
+.icon { width:44px; height:44px; border-radius:14px; border:1px solid var(--border); background:var(--surface); font-size:1.2rem; display:grid; place-items:center; }
+.topbar .ttl { flex:1; min-width:0; }
+.t1 { font-weight:700; font-size:1rem; }
+.t2 { color:var(--muted); font-size:.78rem; }
+.clock { font-weight:600; font-size:.9rem; color:var(--muted); }
+
+.segs { display:flex; gap:4px; padding: 2px 14px 10px; }
+.segs span { flex:1; height:5px; border-radius:3px; background:var(--surface2); }
+.segs span.done { background: var(--primary); opacity:.55; }
+.segs span.cur { background: var(--primary); }
+
+.scroll { flex:1; overflow:auto; padding: 0 14px 14px; }
+.card { background:var(--surface); border:1px solid var(--border); border-radius: var(--radius); padding:14px; }
+.ex { display:flex; gap:12px; align-items:flex-start; margin-bottom: 12px; }
+.thumb { width:72px; height:72px; flex:none; border-radius:14px; background:var(--tint); display:grid; place-items:center; color: var(--primary); }
+.chip { display:inline-block; font-size:.68rem; letter-spacing:.08em; font-weight:700; color: var(--primary); background: var(--tint); padding:3px 8px; border-radius:999px; }
+.ex h2 { margin:6px 0 6px; font-size:1.35rem; line-height:1.15; }
+.plan { display:flex; flex-wrap:wrap; gap:6px; }
+.plan span { font-size:.78rem; background:var(--surface2); padding:3px 8px; border-radius:8px; }
+
+.sect { display:flex; justify-content:space-between; align-items:baseline; margin: 14px 2px 6px; font-size:.75rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:700; }
+.sect small { text-transform:none; letter-spacing:0; font-weight:500; }
+
+.warm { display:flex; align-items:center; gap:8px; padding:10px 12px; border-radius:12px; background:var(--surface); border:1px dashed var(--border); color:var(--muted); font-size:.85rem; }
+.warm b { color: var(--text); font-weight:600; }
+
+.set { display:flex; gap:12px; align-items:center; padding:12px; border-radius:14px; background:var(--surface); border:1px solid var(--border); margin-bottom:8px; }
+.set .n { width:30px; height:30px; flex:none; border-radius:50%; display:grid; place-items:center; font-weight:700; font-size:.85rem; background:var(--surface2); }
+.set.doneset .n { background: var(--primary); color: var(--on-primary); }
+.set .res { flex:1; font-weight:600; }
+.set .res small { display:block; color:var(--muted); font-weight:500; font-size:.75rem; }
+.set.pending { opacity:.7; }
+.set.active { flex-direction:column; align-items:stretch; border:2px solid var(--primary); background: var(--surface); }
+.set.active .head { display:flex; align-items:center; gap:10px; }
+.last { color: var(--primary); font-size:.85rem; font-weight:600; }
+.last b { font-weight:800; }
+.inputs { display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px; }
+.field label { display:block; font-size:.68rem; letter-spacing:.08em; color:var(--muted); font-weight:700; margin: 0 0 4px 2px; }
+.stepper { display:flex; align-items:center; background:var(--surface2); border-radius:14px; overflow:hidden; }
+.stepper button { width:52px; height:56px; border:0; background:transparent; font-size:1.5rem; font-weight:600; }
+.stepper button:active { background: var(--tint); }
+.stepper output { flex:1; text-align:center; font-size:1.6rem; font-weight:800; }
+.badge { margin-top:10px; font-size:.85rem; font-weight:700; display:flex; gap:6px; align-items:center; }
+.badge.up { color: var(--up); } .badge.down { color: var(--down); } .badge.same { color: var(--muted); }
+.target { color: var(--muted); font-size:.78rem; margin-top:4px; }
+
+.bottom { padding: 10px 14px 18px; border-top:1px solid var(--border); background: var(--bg); }
+.btn { width:100%; min-height:60px; border-radius:16px; border:0; font-weight:800; font-size:1.05rem; }
+.btn.primary { background: var(--primary); color: var(--on-primary); }
+.btn.ghost { background: var(--surface2); }
+.bottom .hint { text-align:center; color:var(--muted); font-size:.78rem; margin-top:8px; }
+.two { display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+
+/* Descanso */
+.rest { align-items:center; text-align:center; padding: 18px 20px 0; flex:1; display:flex; flex-direction:column; }
+.rest .lbl { letter-spacing:.14em; font-weight:700; color:var(--muted); font-size:.8rem; margin-top:10px; }
+.ring { position:relative; width:250px; height:250px; margin: 18px 0 14px; }
+.ring svg { width:100%; height:100%; transform: rotate(-90deg); }
+.ring .track { stroke: var(--surface2); } .ring .bar { stroke: var(--primary); transition: stroke-dashoffset .25s linear; }
+.ring .time { position:absolute; inset:0; display:grid; place-items:center; font-size:3.6rem; font-weight:800; }
+.result { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:12px 14px; width:100%; text-align:left; margin-bottom:10px; }
+.result .l1 { font-size:.72rem; letter-spacing:.08em; color:var(--muted); font-weight:700; }
+.result .l2 { font-weight:700; margin-top:2px; }
+.next { background:var(--tint); border-radius:14px; padding:12px 14px; width:100%; text-align:left; }
+.next .l1 { font-size:.72rem; letter-spacing:.08em; color:var(--primary); font-weight:700; }
+.next .l2 { font-weight:700; margin-top:2px; }
+
+/* JumpSet y lista */
+.jump .step { display:flex; gap:12px; align-items:center; padding:14px; border-radius:16px; background:var(--surface); border:1px solid var(--border); margin-bottom:8px; }
+.jump .step.cur { border:2px solid var(--primary); }
+.jump .step .n { width:34px; height:34px; border-radius:50%; display:grid; place-items:center; font-weight:800; background:var(--surface2); }
+.jump .step.cur .n { background:var(--primary); color:var(--on-primary); }
+.jump .rest-chip { text-align:center; color:var(--muted); font-size:.8rem; margin: -2px 0 6px; }
+.list .item { display:flex; align-items:center; gap:12px; padding:13px 14px; border-radius:14px; background:var(--surface); border:1px solid var(--border); margin-bottom:8px; }
+.list .item.cur { border:2px solid var(--primary); }
+.list .item .st { width:26px; height:26px; border-radius:50%; display:grid; place-items:center; font-size:.8rem; font-weight:800; background:var(--surface2); color:var(--muted); }
+.list .item.done .st { background:var(--primary); color:var(--on-primary); }
+.list .item .nm { flex:1; font-weight:600; }
+.list .item small { display:block; color:var(--muted); font-weight:500; }
+.list .grp { border:1px solid var(--primary); border-radius:16px; padding:6px; margin-bottom:8px; background: var(--tint); }
+.list .grp .tag { font-size:.68rem; letter-spacing:.1em; font-weight:800; color:var(--primary); padding:4px 8px; }
+.list .grp .item { margin-bottom:6px; }
+
+.notes { max-width: 760px; margin: 0 auto; padding: 0 16px 30px; color: var(--muted); font-size:.88rem; line-height:1.55; }
+.notes h2 { color: var(--text); font-size:1rem; margin: 18px 0 6px; }
+.notes li { margin-bottom: 4px; }
+</style>
+</head>
+<body>
+
+<div class="lab">
+  <h1>GymApp | prototipo de pantallas</h1>
+  <p>Todo lo de abajo es un boceto para decidir el diseño, no es la aplicación. Probá los botones, el cronómetro funciona.</p>
+  <div class="row">
+    <div class="seg" id="theme"><button data-v="dark" class="on">Oscuro</button><button data-v="light">Claro</button></div>
+    <div class="seg" id="palette"><button data-v="indigo" class="on">Índigo</button><button data-v="ambar">Ámbar</button></div>
+  </div>
+  <div class="row">
+    <div class="seg" id="tabs"><button data-s="set" class="on">Serie</button><button data-s="rest">Descanso</button><button data-s="jump">JumpSet</button><button data-s="list">Lista</button></div>
+  </div>
+</div>
+
+<div class="stage"><div class="phone">
+
+  <!-- ====== Pantalla 1: serie en curso ====== -->
+  <section class="screen on" id="s-set">
+    <div class="topbar">
+      <button class="icon" aria-label="Volver">‹</button>
+      <div class="ttl"><div class="t1">A · Upper</div><div class="t2">Ocurrencia 2 de 5</div></div>
+      <div class="clock">48:12</div>
+      <button class="icon" aria-label="Lista" data-go="list">≡</button>
+    </div>
+    <div class="segs" aria-label="Ejercicio 3 de 9"><span class="done"></span><span class="done"></span><span class="cur"></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="scroll">
+      <div class="card ex">
+        <div class="thumb" aria-hidden="true"><svg width="40" height="40" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 24h36M12 15v18M36 15v18M7 19v10M41 19v10"/></svg></div>
+        <div>
+          <span class="chip">PECTORAL</span>
+          <h2>Press banca</h2>
+          <div class="plan"><span>3 series</span><span>10 · 8 · 6 reps</span><span>pausa 2'30"</span></div>
+        </div>
+      </div>
+      <div class="warm">✓ <span><b>Aproximación hecha</b> · 20×10 · 40×5 · 60×3 <small>(no se anota)</small></span></div>
+      <div class="sect">Series efectivas <small>3 en total</small></div>
+      <div id="sets"></div>
+    </div>
+    <div class="bottom">
+      <button class="btn primary" id="done">Serie hecha</button>
+      <div class="hint">Después empieza el descanso de 2'30"</div>
+    </div>
+  </section>
+
+  <!-- ====== Pantalla 2: descanso ====== -->
+  <section class="screen" id="s-rest">
+    <div class="topbar">
+      <button class="icon" aria-label="Volver" data-go="set">‹</button>
+      <div class="ttl"><div class="t1">Press banca</div><div class="t2">Serie 2 de 3 terminada</div></div>
+      <div class="clock">50:44</div>
+    </div>
+    <div class="scroll rest">
+      <div class="lbl">DESCANSO</div>
+      <div class="ring">
+        <svg viewBox="0 0 100 100"><circle class="track" cx="50" cy="50" r="44" fill="none" stroke-width="7"/><circle class="bar" id="bar" cx="50" cy="50" r="44" fill="none" stroke-width="7" stroke-linecap="round"/></svg>
+        <div class="time" id="time">2:30</div>
+      </div>
+      <div class="result"><div class="l1">LO QUE HICISTE</div><div class="l2" id="resTxt">77,5 kg × 8</div><div class="badge same" id="resCmp">= Igual que la vez anterior</div></div>
+      <div class="next"><div class="l1">SIGUE</div><div class="l2" id="nextTxt">Serie 3 · 6 reps · 80 kg (sugerido)</div></div>
+    </div>
+    <div class="bottom">
+      <div class="two" style="margin-bottom:10px"><button class="btn ghost" id="minus">− 15 s</button><button class="btn ghost" id="plus">+ 15 s</button></div>
+      <button class="btn primary" id="start">Empezar ya</button>
+    </div>
+  </section>
+
+  <!-- ====== Pantalla 3: JumpSet ====== -->
+  <section class="screen jump" id="s-jump">
+    <div class="topbar">
+      <button class="icon" aria-label="Volver" data-go="set">‹</button>
+      <div class="ttl"><div class="t1">JumpSet · Gemelos + Abs</div><div class="t2">Ronda 2 de 3</div></div>
+      <div class="clock">1:02:10</div>
+    </div>
+    <div class="segs"><span class="done"></span><span class="done"></span><span class="done"></span><span class="done"></span><span class="done"></span><span class="done"></span><span class="done"></span><span class="done"></span><span class="cur"></span></div>
+    <div class="scroll">
+      <div class="step cur">
+        <div class="n">1</div>
+        <div style="flex:1"><div style="font-weight:800">Gemelos c/mancuernas</div><div class="t2">Hacé 20 reps · 25 kg · última vez 25 kg × 20</div></div>
+      </div>
+      <div class="rest-chip">↓ descanso 1'00"</div>
+      <div class="step">
+        <div class="n">2</div>
+        <div style="flex:1"><div style="font-weight:700">Hanging leg raise + crunch</div><div class="t2">12 + 12 reps · peso corporal</div></div>
+      </div>
+      <div class="rest-chip">↓ descanso 45" antes de la ronda 3</div>
+      <div class="sect">Rondas</div>
+      <div class="warm">✓ Ronda 1 hecha · 25×20 · 12 + 12</div>
+    </div>
+    <div class="bottom">
+      <button class="btn primary">Hecho, pasar al siguiente</button>
+      <div class="hint">Alterna los ejercicios hasta terminar todas las series</div>
+    </div>
+  </section>
+
+  <!-- ====== Pantalla 4: lista del entrenamiento ====== -->
+  <section class="screen list" id="s-list">
+    <div class="topbar">
+      <button class="icon" aria-label="Volver" data-go="set">‹</button>
+      <div class="ttl"><div class="t1">A · Upper</div><div class="t2">Ocurrencia 2 de 5 · 9 ejercicios</div></div>
+    </div>
+    <div class="scroll">
+      <div class="item done"><div class="st">✓</div><div class="nm">Hanging leg raise<small>4 series</small></div></div>
+      <div class="item done"><div class="st">✓</div><div class="nm">Press banca<small>3 series · rest pause</small></div></div>
+      <div class="item cur"><div class="st">3</div><div class="nm">Press inclinado c/mancuernas<small>3 series · en curso</small></div></div>
+      <div class="item"><div class="st">4</div><div class="nm">Dorsal c/agarre neutro<small>3 series</small></div></div>
+      <div class="item"><div class="st">5</div><div class="nm">Dominadas<small>3 series</small></div></div>
+      <div class="item"><div class="st">6</div><div class="nm">Pulldown polea alta<small>3 series</small></div></div>
+      <div class="grp"><div class="tag">JUMPSET</div>
+        <div class="item"><div class="st">7</div><div class="nm">Gemelos c/mancuernas<small>3 rondas</small></div></div>
+        <div class="item"><div class="st">8</div><div class="nm">Hanging leg raise + crunch<small>3 rondas</small></div></div>
+      </div>
+      <div class="item"><div class="st">9</div><div class="nm">Farmer's walk<small>4 series · 45"</small></div></div>
+    </div>
+    <div class="bottom"><button class="btn ghost" data-go="set">Seguir entrenando</button></div>
+  </section>
+
+</div></div>
+
+<div class="notes">
+  <h2>Decisiones de este boceto</h2>
+  <ul>
+    <li><b>Todo lo que se toca está abajo.</b> El botón principal y los controles de peso y repeticiones quedan en la zona del pulgar. Los botones miden al menos 52 px.</li>
+    <li><b>Lo de la última vez</b> va entre el nombre del ejercicio y el valor de hoy, en el color principal, para comparar de un vistazo.</li>
+    <li><b>El resultado no depende solo del color.</b> Mejoró (▲), igual (=) o bajó (▼) llevan un símbolo y un texto, además del color.</li>
+    <li><b>El modo claro no es blanco puro.</b> El fondo es un gris suave y las tarjetas son apenas más claras, con el texto en un gris muy oscuro y no en negro puro.</li>
+    <li><b>El cronómetro</b> se calcula con la hora de fin, así sigue bien aunque se bloquee la pantalla un momento.</li>
+    <li><b>La aproximación se acompaña pero no se anota.</b> Aparece resumida y no pide datos.</li>
+  </ul>
+</div>
+
+<script>
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const fmt = n => String(n).replace('.', ',');
+const root = document.documentElement;
+
+/* Tema, paleta y pantallas */
+function pick(group, attr) { $$('#'+group+' button').forEach(b => b.addEventListener('click', () => {
+  $$('#'+group+' button').forEach(x => x.classList.toggle('on', x === b)); root.setAttribute(attr, b.dataset.v); })); }
+pick('theme', 'data-theme'); pick('palette', 'data-palette');
+function show(name) { $$('.screen').forEach(s => s.classList.toggle('on', s.id === 's-'+name));
+  $$('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.s === name)); if (name === 'rest') startRest(); }
+$$('#tabs button').forEach(b => b.addEventListener('click', () => show(b.dataset.s)));
+$$('[data-go]').forEach(b => b.addEventListener('click', () => show(b.dataset.go)));
+
+/* Series del press banca (objetivo 10 · 8 · 6) */
+const targets = [10, 8, 6];
+const state = { sets: [ {last:[70,10], done:[70,10]}, {last:[77.5,8], done:null}, {last:[80,6], done:null} ], cur: 1, w: 77.5, r: 8 };
+function cmp(w, r, lw, lr) { if (w > lw || (w === lw && r > lr)) return 'up'; if (w === lw && r === lr) return 'same'; return 'down'; }
+const label = { up: '▲ Mejoraste', same: '= Igual que la vez anterior', down: '▼ Por debajo de la vez anterior' };
+function render() {
+  $('#sets').innerHTML = state.sets.map((s, i) => {
+    if (s.done) { const c = cmp(s.done[0], s.done[1], s.last[0], s.last[1]);
+      return `<div class="set doneset"><div class="n">${i+1}</div><div class="res">${fmt(s.done[0])} kg × ${s.done[1]}<small>Última vez ${fmt(s.last[0])} kg × ${s.last[1]}</small></div><div class="badge ${c}" style="margin:0">${label[c].split(' ')[0]}</div></div>`; }
+    if (i === state.cur) { const c = cmp(state.w, state.r, s.last[0], s.last[1]);
+      return `<div class="set active"><div class="head"><div class="n">${i+1}</div><div class="last">Última vez <b>${fmt(s.last[0])} kg × ${s.last[1]}</b></div></div>
+        <div class="inputs"><div class="field"><label>KG</label><div class="stepper"><button data-a="w-">−</button><output>${fmt(state.w)}</output><button data-a="w+">+</button></div></div>
+        <div class="field"><label>REPS</label><div class="stepper"><button data-a="r-">−</button><output>${state.r}</output><button data-a="r+">+</button></div></div></div>
+        <div class="badge ${c}">${label[c]}</div><div class="target">Objetivo ${targets[i]} reps</div></div>`; }
+    return `<div class="set pending"><div class="n">${i+1}</div><div class="res">Pendiente<small>Última vez ${fmt(s.last[0])} kg × ${s.last[1]} · objetivo ${targets[i]} reps</small></div></div>`;
+  }).join('');
+  $$('#sets [data-a]').forEach(b => b.addEventListener('click', () => { const a = b.dataset.a;
+    if (a === 'w-') state.w = Math.max(0, state.w - 2.5); if (a === 'w+') state.w += 2.5;
+    if (a === 'r-') state.r = Math.max(0, state.r - 1); if (a === 'r+') state.r += 1; render(); }));
+}
+render();
+
+/* Descanso con cronómetro basado en la hora de fin */
+let restEnd = 0, restTotal = 150, timer = null; const C = 2 * Math.PI * 44; $('#bar').style.strokeDasharray = C;
+function tick() { const rem = Math.max(0, Math.ceil((restEnd - Date.now()) / 1000));
+  $('#time').textContent = Math.floor(rem / 60) + ':' + String(rem % 60).padStart(2, '0');
+  $('#bar').style.strokeDashoffset = C * (1 - rem / restTotal);
+  $('#start').textContent = rem === 0 ? '¡A entrenar!' : 'Empezar ya';
+  if (rem === 0 && timer) { clearInterval(timer); timer = null; if (navigator.vibrate) navigator.vibrate(200); } }
+function startRest() { restEnd = Date.now() + restTotal * 1000; clearInterval(timer); timer = setInterval(tick, 200); tick(); }
+$('#done').addEventListener('click', () => {
+  const s = state.sets[state.cur]; s.done = [state.w, state.r]; const c = cmp(state.w, state.r, s.last[0], s.last[1]);
+  $('#resTxt').textContent = fmt(state.w) + ' kg × ' + state.r; const b = $('#resCmp'); b.className = 'badge ' + c; b.textContent = label[c];
+  const next = state.sets[state.cur + 1];
+  $('#nextTxt').textContent = next ? `Serie ${state.cur + 2} · ${targets[state.cur + 1]} reps · ${fmt(next.last[0])} kg (sugerido)` : 'Último ejercicio de la serie, sigue Press inclinado';
+  if (next) { state.cur += 1; state.w = next.last[0]; state.r = next.last[1]; } else { state.cur = -1; }
+  render(); show('rest'); });
+$('#minus').addEventListener('click', () => { restEnd = Math.max(Date.now(), restEnd - 15000); tick(); });
+$('#plus').addEventListener('click', () => { restEnd += 15000; restTotal += 15; tick(); });
+$('#start').addEventListener('click', () => show('set'));
+
+/* Permite abrir directo una combinación: ?tema=claro&paleta=ambar&pantalla=rest */
+const q = new URLSearchParams(location.search);
+const themeMap = { claro: 'light', oscuro: 'dark' };
+if (q.get('tema')) { const v = themeMap[q.get('tema')] || 'dark'; root.setAttribute('data-theme', v); $$('#theme button').forEach(b => b.classList.toggle('on', b.dataset.v === v)); }
+if (q.get('paleta')) { root.setAttribute('data-palette', q.get('paleta')); $$('#palette button').forEach(b => b.classList.toggle('on', b.dataset.v === q.get('paleta'))); }
+if (q.get('pantalla')) show(q.get('pantalla'));
+</script>
+</body>
+</html>
