@@ -28,3 +28,4 @@ Cada archivo se llama `ADR-NNN-titulo-corto.md` y tiene estas secciones.
 | [ADR-010](ADR-010-cuatro-niveles-y-descansos-fijos.md) | Planificación en cuatro niveles y descansos fijos | Aceptada |
 | [ADR-011](ADR-011-avisos-del-descanso-y-control-numerico.md) | Avisos del descanso y control numérico | Aceptada |
 | [ADR-012](ADR-012-ilustraciones-de-ejercicios.md) | Ilustraciones de ejercicios con licencia CC BY-SA | Aceptada |
+| [ADR-013](ADR-013-compartir-rutinas-e-instalacion.md) | Compartir rutinas por archivo y botón de instalar | Aceptada |

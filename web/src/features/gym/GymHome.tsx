@@ -1,8 +1,10 @@
 import { useLiveQuery } from 'dexie-react-hooks'
+import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ModuleIcon, ModuleName } from '../../brand/Logo'
 import { db } from '../../db/db'
 import { createMacro } from '../../db/queries'
+import { importPlan } from '../../db/share'
 import { TopBar } from '../../ui/components'
 import { formatDate, formatDuration } from './format'
 import { macroProgress } from './progress'
@@ -54,6 +56,20 @@ export function GymHome() {
     [],
   )
 
+  const [message, setMessage] = useState('')
+  const fileRef = useRef<HTMLInputElement>(null)
+
+  async function doImport(file: File | undefined) {
+    if (!file) return
+    try {
+      const r = await importPlan(db, JSON.parse(await file.text()))
+      navigate(`/gym/macro/${r.macroId}`)
+    } catch (e) {
+      setMessage(e instanceof Error ? e.message : 'No se pudo leer el archivo.')
+    }
+    if (fileRef.current) fileRef.current.value = ''
+  }
+
   async function create() {
     const n = (macros?.length ?? 0) + 1
     const m = await createMacro(db, `Macrociclo ${n}`)
@@ -96,6 +112,21 @@ export function GymHome() {
           <button className="btn small primary" onClick={create}>
             + Nuevo macrociclo
           </button>
+          <button className="btn small" onClick={() => fileRef.current?.click()}>
+            Cargar una rutina recibida
+          </button>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="application/json,.json"
+            hidden
+            onChange={(e) => void doImport(e.target.files?.[0])}
+          />
+          {message && (
+            <p className="t2" role="status">
+              {message}
+            </p>
+          )}
         </div>
 
         {history && history.length > 0 && (

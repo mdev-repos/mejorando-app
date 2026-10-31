@@ -2,7 +2,9 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ModuleIcon } from '../../brand/Logo'
+import { fileSlug, shareJson } from '../../app/files'
 import { db } from '../../db/db'
+import { exportPlan } from '../../db/share'
 import { createMeso, deleteMacro, renameMacro } from '../../db/queries'
 import type { RoutineMode } from '../../domain/types'
 import { NameField, Stepper, TopBar } from '../../ui/components'
@@ -55,6 +57,7 @@ export function MacroScreen() {
   const [mode, setMode] = useState<RoutineMode>('simple')
   const [executions, setExecutions] = useState(4)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [message, setMessage] = useState('')
 
   if (macro === undefined) return null
   if (macro === null || macro.deletedAt) {
@@ -158,6 +161,37 @@ export function MacroScreen() {
             </button>
           )}
         </div>
+
+        {mesos && mesos.length > 0 && (
+          <>
+            <div className="sect">Compartir</div>
+            <div className="card stack">
+              <p className="t2">
+                Se envía la rutina con sus mesociclos y días, sin tu historial. Quien la reciba la
+                carga desde Entrenamiento y queda como algo propio.
+              </p>
+              <button
+                className="btn small"
+                onClick={async () => {
+                  try {
+                    const { file, name } = await exportPlan(db, { macroId: macro.id })
+                    const how = await shareJson(`rutina-${fileSlug(name)}.json`, file, name)
+                    setMessage(how === 'saved' ? 'Se guardó el archivo en tus descargas.' : '')
+                  } catch (e) {
+                    setMessage(e instanceof Error ? e.message : 'No se pudo compartir.')
+                  }
+                }}
+              >
+                Compartir macrociclo
+              </button>
+              {message && (
+                <p className="t2" role="status">
+                  {message}
+                </p>
+              )}
+            </div>
+          </>
+        )}
 
         <div style={{ height: 22 }} />
         <button

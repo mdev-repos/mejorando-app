@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { MODULES, useEnabledModules } from '../../app/modules'
 import { ModuleIcon, ModuleName, SuiteLogo } from '../../brand/Logo'
 import { Wordmark } from '../../brand/Wordmark'
+import { InstallCard } from '../../app/install'
 import { db } from '../../db/db'
 import { TopBar } from '../../ui/components'
 
@@ -29,6 +30,8 @@ export function Home() {
             <div className="t2">Tocá para continuar el entrenamiento</div>
           </button>
         )}
+
+        <InstallCard />
 
         <div className="sect">Tus módulos</div>
         <div className="stack">

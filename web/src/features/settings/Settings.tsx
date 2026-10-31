@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { MODULES, useEnabledModules } from '../../app/modules'
 import { playCue, unlockAudio, useFeedbackPrefs } from '../../app/sound'
+import { InstallCard } from '../../app/install'
 import { useTestMode } from '../../app/testMode'
 import { useThemePref, type ThemePref } from '../../app/theme'
 import { db } from '../../db/db'
@@ -49,6 +50,8 @@ export function Settings() {
     <>
       <TopBar icon={<SuiteLogo size={36} />} title="Ajustes" />
       <div className="scroll">
+        <InstallCard />
+
         <div className="sect">Tema</div>
         <div className="seg" role="radiogroup" aria-label="Tema">
           {THEMES.map((t) => (
