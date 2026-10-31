@@ -30,7 +30,7 @@ function brandColor(p: number): string {
 const FEET = Array.from({ length: N }, (_, i) => ({
   i,
   x: 540 + (i % 2 === 0 ? -COLSEP / 2 : COLSEP / 2),
-  y: 545 + L / 2 + i * STEP,
+  y: 455 + L / 2 + i * STEP,
   left: i % 2 === 0,
   // el primer paso (abajo) es naranja y los pasos van tomando los colores del degradé hasta llegar al azul
   color: brandColor(1 - i / (N - 1)),
@@ -81,7 +81,7 @@ export function Splash({ onDone, ms = 4000 }: { onDone: () => void; ms?: number 
         <g className="a stx">
           <svg
             x={540 - WORD_W / 2}
-            y={290}
+            y={200}
             width={WORD_W}
             height={WORD_H}
             viewBox={`${WORD_BOX.x} ${WORD_BOX.y} ${WORD_BOX.w} ${WORD_BOX.h}`}

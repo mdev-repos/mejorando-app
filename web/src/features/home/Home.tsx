@@ -21,17 +21,19 @@ export function Home() {
         subtitle="Un paso a la vez"
       />
       <div className="scroll">
-        {active && (
-          <button className="card tap" onClick={() => navigate(`/gym/sesion/${active.id}`)}>
-            <span className="chip">EN CURSO</span>
-            <div className="t1" style={{ marginTop: 8 }}>
-              {active.trainingName}
-            </div>
-            <div className="t2">Tocá para continuar el entrenamiento</div>
-          </button>
-        )}
+        <div className="stack">
+          {active && (
+            <button className="card tap" onClick={() => navigate(`/gym/sesion/${active.id}`)}>
+              <span className="chip">EN CURSO</span>
+              <div className="t1" style={{ marginTop: 8 }}>
+                {active.trainingName}
+              </div>
+              <div className="t2">Tocá para continuar el entrenamiento</div>
+            </button>
+          )}
 
-        <InstallCard />
+          <InstallCard />
+        </div>
 
         <div className="sect">Tus módulos</div>
         <div className="stack">
