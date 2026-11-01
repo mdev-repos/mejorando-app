@@ -1,8 +1,11 @@
 import { useRef, useState } from 'react'
 import { MODULES, useEnabledModules } from '../../app/modules'
 import { playCue, unlockAudio, useFeedbackPrefs } from '../../app/sound'
+import { markBackup, useLastBackup } from '../../app/backup'
+import { DEV_TOOLS } from '../../app/devTools'
 import { InstallCard } from '../../app/install'
 import { FEEDBACK_URL } from '../../app/links'
+import { usePersistence } from '../../app/storage'
 import { useTestMode } from '../../app/testMode'
 import { useThemePref, type ThemePref } from '../../app/theme'
 import { db } from '../../db/db'
@@ -22,6 +25,8 @@ export function Settings() {
   const [testMode, setTestMode] = useTestMode()
   const feedback = useFeedbackPrefs()
   const [message, setMessage] = useState('')
+  const lastBackup = useLastBackup()
+  const persisted = usePersistence()
   const fileRef = useRef<HTMLInputElement>(null)
 
   async function doExport() {
@@ -33,6 +38,7 @@ export function Settings() {
     a.download = `mejorando-copia-${new Date().toISOString().slice(0, 10)}.json`
     a.click()
     setTimeout(() => URL.revokeObjectURL(url), 5000)
+    markBackup()
     setMessage('Copia lista. Guardala en un lugar seguro.')
   }
 
@@ -137,23 +143,27 @@ export function Settings() {
           </div>
         </div>
 
-        <div className="sect">Entrenamiento</div>
-        <label className="card row">
-          <div className="grow">
-            <div className="t1">Modo de prueba</div>
-            <div className="t2">
-              Permite adelantar o alargar los descansos. Durante un entrenamiento real se respeta el
-              descanso de la rutina, así que dejalo apagado.
-            </div>
-          </div>
-          <input
-            type="checkbox"
-            className="switch"
-            checked={testMode}
-            onChange={(e) => setTestMode(e.target.checked)}
-            aria-label="Modo de prueba"
-          />
-        </label>
+        {DEV_TOOLS && (
+          <>
+            <div className="sect">Entrenamiento</div>
+            <label className="card row">
+              <div className="grow">
+                <div className="t1">Modo de prueba</div>
+                <div className="t2">
+                  Permite adelantar o alargar los descansos. Durante un entrenamiento real se
+                  respeta el descanso de la rutina, así que dejalo apagado.
+                </div>
+              </div>
+              <input
+                type="checkbox"
+                className="switch"
+                checked={testMode}
+                onChange={(e) => setTestMode(e.target.checked)}
+                aria-label="Modo de prueba"
+              />
+            </label>
+          </>
+        )}
 
         <div className="sect">Tus datos</div>
         <div className="card stack">
@@ -179,6 +189,33 @@ export function Settings() {
               {message}
             </p>
           )}
+          <p className="t2">
+            {lastBackup === undefined
+              ? 'Todavía no guardaste una copia.'
+              : `Última copia guardada el ${new Date(lastBackup).toLocaleDateString('es-AR')}.`}{' '}
+            {persisted === true && 'El navegador no va a borrar tus datos por falta de espacio.'}
+            {persisted === false &&
+              'El navegador podría borrar tus datos si le falta espacio, así que guardá copias seguido.'}
+          </p>
+        </div>
+
+        <div className="sect">Acerca de</div>
+        <div className="card stack">
+          <div className="t1">MejorAndo, versión beta</div>
+          <p className="t2">
+            Puede tener errores y algunas cosas van a cambiar. Si encontrás uno, contámelo desde
+            Comentarios.
+          </p>
+          <ul className="t2 list">
+            <li>Se probó en Android. En iPhone debería funcionar, pero no vibra y no se probó.</li>
+            <li>Con la pantalla bloqueada, el sonido del descanso puede no sonar.</li>
+            <li>No hay cuentas ni sincronización. Tus datos viven solo en este teléfono.</li>
+          </ul>
+          <p className="t2">
+            MejorAndo no reemplaza a un profesional de la salud. Antes de empezar un plan de
+            entrenamiento o de alimentación, consultá con tu médico. Para entrenar, con un
+            deportólogo, y para comer, con un nutricionista.
+          </p>
         </div>
         {FEEDBACK_URL && (
           <>
@@ -224,7 +261,7 @@ export function Settings() {
           </a>
         </div>
         <p className="t2 center" style={{ marginTop: 18 }}>
-          MejorAndo 0.1
+          MejorAndo · Beta {__APP_VERSION__}
         </p>
       </div>
     </>

@@ -334,3 +334,25 @@ export function stepsOf(session: Session, exercises: Exercise[]): Step[] {
   const map = new Map(exercises.map((e) => [e.id, e]))
   return buildSteps(session.plan, (id) => map.get(id))
 }
+
+/* ---------- corregir lo ya hecho ---------- */
+
+/** Borra una sesión y todas sus series. Las ejecuciones hechas del día se recalculan solas. */
+export async function deleteSession(db: MejorAndoDB, id: string): Promise<void> {
+  await db.transaction('rw', db.sessions, db.sets, async () => {
+    await db.sets.where('sessionId').equals(id).delete()
+    await db.sessions.delete(id)
+  })
+}
+
+export async function updateSet(
+  db: MejorAndoDB,
+  id: string,
+  patch: { weight: number; reps: number },
+): Promise<void> {
+  await db.sets.update(id, patch)
+}
+
+export async function deleteSet(db: MejorAndoDB, id: string): Promise<void> {
+  await db.sets.delete(id)
+}

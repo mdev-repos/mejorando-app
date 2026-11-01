@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { MODULES, useEnabledModules } from '../../app/modules'
 import { ModuleIcon, ModuleName, SuiteLogo } from '../../brand/Logo'
 import { Wordmark } from '../../brand/Wordmark'
+import { BackupReminder } from '../../app/BackupReminder'
 import { InstallCard } from '../../app/install'
 import { db } from '../../db/db'
 import { TopBar } from '../../ui/components'
@@ -33,6 +34,7 @@ export function Home() {
           )}
 
           <InstallCard />
+          <BackupReminder />
         </div>
 
         <div className="sect">Tus módulos</div>

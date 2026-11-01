@@ -13,6 +13,7 @@ import { Home } from '../features/home/Home'
 import { Settings } from '../features/settings/Settings'
 import { BottomNav } from '../ui/components'
 import { unlockAudio } from './sound'
+import { requestPersistence } from './storage'
 import { useApplyTheme } from './theme'
 
 const TOP_LEVEL = new Set(['/', '/gym', '/ajustes'])
@@ -60,6 +61,7 @@ export function App({ splash = true }: { splash?: boolean }) {
 
   useEffect(() => {
     void seedCatalog(db).then(() => setReady(true))
+    void requestPersistence()
   }, [])
 
   const finishSplash = useCallback(() => {

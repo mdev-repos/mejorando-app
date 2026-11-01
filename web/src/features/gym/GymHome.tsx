@@ -1,6 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { BackupReminder } from '../../app/BackupReminder'
 import { ModuleIcon, ModuleName } from '../../brand/Logo'
 import { db } from '../../db/db'
 import { createMacro } from '../../db/queries'
@@ -101,6 +102,8 @@ export function GymHome() {
             </div>
           </button>
         )}
+
+        <BackupReminder />
 
         <div className="sect">Mis macrociclos</div>
         <div className="stack">

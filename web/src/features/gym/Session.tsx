@@ -9,11 +9,14 @@ import { ModuleIcon } from '../../brand/Logo'
 import { db } from '../../db/db'
 import {
   completeStep,
+  deleteSession,
+  deleteSet,
   finishSession,
   flowOf,
   previousSets,
   saveFlow,
   stepsOf,
+  updateSet,
   type NewLog,
 } from '../../db/queries'
 import { compareExtra, compareSet } from '../../domain/compare'
@@ -26,7 +29,7 @@ import {
   skipRest,
   type Step,
 } from '../../domain/session'
-import { formatNumber } from '../../domain/numbers'
+import { formatNumber, parseNumber } from '../../domain/numbers'
 import { PHASE_LABEL, restCue, restPhase } from '../../domain/rest'
 import { formatRest, formatTarget, startReps } from '../../domain/targets'
 import type { Exercise, Session, SetLog } from '../../domain/types'
@@ -744,6 +747,7 @@ function ListView({
 /* ======================= resumen ======================= */
 function Summary({ session, byId }: { session: Session; byId: Lookup }) {
   const navigate = useNavigate()
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const sets = useLiveQuery(
     () => db.sets.where('sessionId').equals(session.id).sortBy('at'),
     [session.id],
@@ -787,19 +791,7 @@ function Summary({ session, byId }: { session: Session; byId: Lookup }) {
                       </div>
                     )}
                     {rows.map((s) => (
-                      <div key={s.id} className="row" style={{ padding: '3px 0' }}>
-                        {s.kind === 'approach' ? (
-                          <span className="tag-aprox">APROX</span>
-                        ) : (
-                          <span className="chip muted">{s.setIndex}</span>
-                        )}
-                        <span
-                          style={s.kind === 'approach' ? { color: 'var(--approach)' } : undefined}
-                        >
-                          {liftText(s, byId(exId))}
-                          {s.extraReps !== undefined && ` + ${s.extraReps} rest pause`}
-                        </span>
-                      </div>
+                      <SetRow key={s.id} s={s} ex={byId(exId)} />
                     ))}
                   </div>
                 )
@@ -807,6 +799,17 @@ function Summary({ session, byId }: { session: Session; byId: Lookup }) {
             </div>
           )
         })}
+        <div style={{ height: 14 }} />
+        <button
+          className="btn small danger"
+          onClick={async () => {
+            if (!confirmDelete) return setConfirmDelete(true)
+            await deleteSession(db, session.id)
+            navigate('/gym')
+          }}
+        >
+          {confirmDelete ? 'Tocá de nuevo para borrar' : 'Borrar este entrenamiento'}
+        </button>
       </div>
       <div className="bottom">
         <button className="btn primary" onClick={() => navigate('/gym')}>
@@ -814,5 +817,90 @@ function Summary({ session, byId }: { session: Session; byId: Lookup }) {
         </button>
       </div>
     </>
+  )
+}
+
+/** Una serie del resumen, que se puede corregir o borrar si se cargó mal. */
+function SetRow({ s, ex }: { s: SetLog; ex: Exercise | undefined }) {
+  const [editing, setEditing] = useState(false)
+  const [weight, setWeight] = useState(formatNumber(s.weight))
+  const [reps, setReps] = useState(String(s.reps))
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const timed = ex?.load === 'time'
+  const w = parseNumber(weight)
+  const r = parseNumber(reps)
+  const valid = (timed || (w !== undefined && w >= 0)) && r !== undefined && r >= 0
+
+  async function save() {
+    if (!valid) return
+    await updateSet(db, s.id, { weight: timed ? s.weight : (w ?? 0), reps: Math.round(r ?? 0) })
+    setEditing(false)
+  }
+
+  if (!editing) {
+    return (
+      <div className="row" style={{ padding: '3px 0' }}>
+        {s.kind === 'approach' ? (
+          <span className="tag-aprox">APROX</span>
+        ) : (
+          <span className="chip muted">{s.setIndex}</span>
+        )}
+        <span
+          className="grow"
+          style={s.kind === 'approach' ? { color: 'var(--approach)' } : undefined}
+        >
+          {liftText(s, ex)}
+          {s.extraReps !== undefined && ` + ${s.extraReps} rest pause`}
+        </span>
+        <button className="btn small" aria-label="Corregir serie" onClick={() => setEditing(true)}>
+          Corregir
+        </button>
+      </div>
+    )
+  }
+  return (
+    <div className="card stack" style={{ margin: '6px 0' }}>
+      <div className="two">
+        {!timed && (
+          <div className="field">
+            <label htmlFor={`kg-${s.id}`}>Peso (kg)</label>
+            <input
+              id={`kg-${s.id}`}
+              className="search"
+              inputMode="decimal"
+              value={weight}
+              onChange={(e) => setWeight(e.target.value)}
+            />
+          </div>
+        )}
+        <div className="field">
+          <label htmlFor={`rp-${s.id}`}>{timed ? 'Segundos' : 'Repeticiones'}</label>
+          <input
+            id={`rp-${s.id}`}
+            className="search"
+            inputMode="numeric"
+            value={reps}
+            onChange={(e) => setReps(e.target.value)}
+          />
+        </div>
+      </div>
+      <div className="two">
+        <button className="btn small" onClick={() => setEditing(false)}>
+          Cancelar
+        </button>
+        <button className="btn small primary" disabled={!valid} onClick={save}>
+          Guardar
+        </button>
+      </div>
+      <button
+        className="btn small danger"
+        onClick={async () => {
+          if (!confirmDelete) return setConfirmDelete(true)
+          await deleteSet(db, s.id)
+        }}
+      >
+        {confirmDelete ? 'Tocá de nuevo para borrar' : 'Borrar esta serie'}
+      </button>
+    </div>
   )
 }
