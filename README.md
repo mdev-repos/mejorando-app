@@ -33,4 +33,4 @@ Otros comandos útiles: `npm test`, `npm run lint`, `npm run typecheck` y `npm r
 
 ## Créditos
 
-Las ilustraciones de los ejercicios son del proyecto [Everkinetic](https://github.com/everkinetic/data), de Greg Priday, con licencia [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Se convirtieron a WebP y se redimensionaron, sin cambiar el dibujo. Siete ejercicios tienen un dibujo propio en SVG. Las ilustraciones conservan esa licencia.
+Las ilustraciones de los ejercicios son del proyecto [Everkinetic](https://github.com/everkinetic/data), de Greg Priday, con licencia [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Se convirtieron a WebP y se redimensionaron, sin cambiar el dibujo. Las ilustraciones conservan esa licencia.
