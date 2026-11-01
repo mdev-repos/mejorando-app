@@ -175,7 +175,7 @@ export function MacroScreen() {
                 onClick={async () => {
                   try {
                     const { file, name } = await exportPlan(db, { macroId: macro.id })
-                    const how = await shareJson(`rutina-${fileSlug(name)}.json`, file, name)
+                    const how = await shareJson(`rutina-${fileSlug(name)}`, file, name)
                     setMessage(how === 'saved' ? 'Se guardó el archivo en tus descargas.' : '')
                   } catch (e) {
                     setMessage(e instanceof Error ? e.message : 'No se pudo compartir.')

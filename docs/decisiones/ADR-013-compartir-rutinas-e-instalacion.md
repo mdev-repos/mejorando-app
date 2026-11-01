@@ -8,7 +8,7 @@ Una persona arma un macrociclo y quiere pasárselo a otra sin repetir el trabajo
 
 ## Decisión
 
-**Compartir.** Un macrociclo entero o un mesociclo se exporta como un archivo `.json` con formato `mejorando-rutina`. Lleva los mesociclos, los días y los ejercicios propios que usan. No lleva sesiones, series ni ajustes personales como el paso de peso. Se envía con el menú de compartir del teléfono, y si no está disponible se descarga.
+**Compartir.** Un macrociclo entero o un mesociclo se exporta como un archivo `.json` con formato `mejorando-rutina`. Lleva los mesociclos, los días y los ejercicios propios que usan. No lleva sesiones, series ni ajustes personales como el paso de peso. Se envía con el menú de compartir del teléfono como texto plano (.txt), porque Chrome no deja compartir .json, y si el menú no está disponible se descarga un .json.
 
 **Cargar.** Desde Entrenamiento, "Cargar una rutina recibida" crea siempre algo nuevo, con identificadores propios, dentro de un macrociclo con el nombre del original. Nunca pisa lo que ya existe. Si se carga dos veces, queda duplicada. Un ejercicio propio que ya existe se conserva.
 

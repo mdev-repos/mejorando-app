@@ -118,7 +118,7 @@ export function GymHome() {
           <input
             ref={fileRef}
             type="file"
-            accept="application/json,.json"
+            accept="application/json,.json,text/plain,.txt"
             hidden
             onChange={(e) => void doImport(e.target.files?.[0])}
           />
