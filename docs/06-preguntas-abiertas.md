@@ -4,19 +4,17 @@ Lo que todavía no está decidido. Cuando una pregunta se resuelve, la respuesta
 
 ## Producto
 
-1. **Revisión de marca.** El nombre MejorAndo y el logo están decididos ([ADR-008](decisiones/ADR-008-mejorando-nombre-y-logo.md)). Antes de abrir la app al público hay que revisar si el nombre se puede usar, por ejemplo en el registro de marcas, en las tiendas de aplicaciones y en dominios. También falta diseñar la versión del texto final de la pantalla de carga.
-2. **Protocolos.** En el rest pause, si en la comparación las repeticiones del tramo extra se miran aparte o se suman a la serie (la propuesta es mirarlas aparte). El descanso propuesto es de 20 segundos y se puede cambiar. Además, qué otros protocolos se agregan al JumpSet y al rest pause.
-3. **Catálogo.** Resuelto con ADR-012, hay 253 ejercicios y 246 ilustraciones. Faltan los siete ejercicios del catálogo inicial sin dibujo, que se van a dibujar aparte a mano.
-4. **Contenido de la landing y de la ayuda.** Cómo se explica sacarle más provecho a la app, y a qué creadores de contenido se recomienda además del entrenador del que aprendió el autor.
-5. **Carga de rutinas desde una planilla.** Si se agrega después del armado por catálogo, y con qué formato.
+1. **Revisión de marca.** El nombre MejorAndo y el logo están decididos ([ADR-008](decisiones/ADR-008-mejorando-nombre-y-logo.md)). Antes de difundir la app hay que revisar si el nombre se puede usar, por ejemplo en el registro de marcas, en las tiendas de aplicaciones y en dominios.
+2. **Plantillas de rutinas.** Qué plantillas se incluyen, con qué descansos y repeticiones, y cómo se ofrecen. Hay un [borrador](plantillas-borrador.md) para revisar.
+3. **Los siete ejercicios sin dibujo.** Sentadilla búlgara, hip thrust, face pull, patada de tríceps, curl inclinado, plancha y fondos en paralelas. Se van a dibujar aparte a mano.
+4. **Otros protocolos.** Qué protocolos se suman al JumpSet, al rest pause y al escalonado.
+5. **Cargar una rutina desde una planilla.** Si se agrega, y con qué formato.
 
 ## Arquitectura
 
-6. **Método de cuenta.** La aplicación se usa sin cuenta y la cuenta es opcional ([ADR-004](decisiones/ADR-004-uso-sin-cuenta.md)). Falta elegir cómo se crea y se abre. Las opciones en estudio son iniciar con una cuenta de Google, un enlace que llega por correo sin contraseña, y llaves de acceso (passkeys), solas o combinadas.
-7. **Dónde se publica la versión pública** y con qué costo. Para probar mientras el repositorio es privado se usa Netlify ([ADR-007](decisiones/ADR-007-repositorio-y-publicacion.md)).
-8. **Cómo se prueba una PWA en un dispositivo real,** en iPhone y en Android, durante el desarrollo.
+6. **Método de cuenta.** Si la app crece, cómo se crea y se abre una cuenta opcional ([ADR-004](decisiones/ADR-004-uso-sin-cuenta.md)).
+7. **Probar en iPhone.** La app se probó en Android. Falta confirmar la instalación, la actualización y el almacenamiento en iPhone.
 
 ## Legales
 
-9. **Política de privacidad y consentimiento** antes de abrir la app al público.
-10. **Licencias** de las imágenes y de cualquier otro contenido incluido.
+8. **Privacidad.** La app no recolecta datos, pero el formulario de comentarios sí recibe lo que la persona escriba. Hay que dejar por escrito qué se hace con eso.

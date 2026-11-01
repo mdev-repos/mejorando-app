@@ -1,25 +1,27 @@
-# MejorAndo | Documentación de diseño
+# Documentación de MejorAndo
 
-MejorAndo es una suite de herramientas para el celular que acompaña el proceso de mejorar la salud. Empieza por EntrenAndo, el entrenamiento de fuerza, y más adelante suma alimentación, peso y pasos. Esta carpeta es el lugar donde se decide cómo es, y cada decisión queda escrita con su motivo.
+MejorAndo es una suite de herramientas para el celular que acompaña el proceso de mejorar la salud. Empieza por EntrenAndo, el entrenamiento de fuerza, y más adelante suma alimentación y pasos. Esta carpeta es donde se decide cómo es, y cada decisión importante queda escrita con su motivo.
 
-El proyecto se diseña y se construye junto con un agente de IA, que programa a partir de estos documentos. Por eso los documentos tienen que ser claros y mantenerse al día, porque son el acuerdo entre quien decide y quien construye.
+El proyecto se diseñó y se construyó junto con una IA, que escribe buena parte del código a partir de estos documentos. Por eso tienen que ser claros y mantenerse al día, porque son el acuerdo entre quien decide y quien construye.
 
 ## Cómo leer esta documentación
 
 | Documento | Para qué sirve |
 |---|---|
-| [01 Visión](01-vision.md) | Por qué existe la app, para quién es y hasta dónde llega el primer núcleo |
-| [02 Dominio](02-dominio.md) | El vocabulario del entrenamiento y el modelo de datos de lo que la app maneja |
-| [03 Arquitectura](03-arquitectura.md) | Cómo se construye, qué piezas tiene y cómo viaja la información |
-| [04 Hoja de ruta](04-hoja-de-ruta.md) | En qué orden se construye |
-| [05 Posibles mejoras](05-posibles-mejoras.md) | Ideas valiosas que quedan fuera del primer núcleo |
+| [01 Visión](01-vision.md) | Por qué existe la app, para quién es y qué incluye hoy |
+| [02 Dominio](02-dominio.md) | El vocabulario del entrenamiento, las reglas y el modelo de datos |
+| [03 Arquitectura](03-arquitectura.md) | Cómo está construida, qué piezas tiene y cómo se prueba |
+| [04 Hoja de ruta](04-hoja-de-ruta.md) | Lo que está hecho, lo que sigue y lo que viene después |
+| [05 Posibles mejoras](05-posibles-mejoras.md) | Ideas valiosas que todavía no están |
 | [06 Preguntas abiertas](06-preguntas-abiertas.md) | Lo que todavía no está decidido |
-| [07 Diseño visual](07-diseno-visual.md) | Paletas, temas claro y oscuro y las pantallas del entrenamiento, con un [boceto interactivo](diseno/prototipo-pantallas.html) |
+| [07 Diseño visual](07-diseno-visual.md) | Colores, temas, tipografía, logo y las pantallas |
+| [Historia](historia.md) | Cómo se llegó hasta acá, con los cambios de nombre, logo y estética |
 | [Decisiones](decisiones/README.md) | Un registro corto por cada decisión importante, con su contexto y alternativas |
+| [Plantillas, borrador](plantillas-borrador.md) | Rutinas clásicas para ofrecer al empezar, en revisión |
 
 ## Estado
 
-Fase actual, primer esqueleto de EntrenAndo en construcción. Las decisiones ya tomadas están en la carpeta de decisiones. Lo que falta definir está en las preguntas abiertas.
+La aplicación está en **beta** (versión 0.2). Las decisiones tomadas están en la carpeta de decisiones y lo que falta definir está en las preguntas abiertas.
 
 ## Reglas de la documentación
 
@@ -27,3 +29,4 @@ Fase actual, primer esqueleto de EntrenAndo en construcción. Las decisiones ya 
 - Una decisión se registra en el momento en que se toma, junto con las alternativas que se descartaron y por qué.
 - Si un documento y el código se contradicen, se corrige el que esté equivocado el mismo día.
 - No se copia contenido con derechos ajenos, como rutinas o videos de terceros.
+- La documentación se publica con la licencia CC BY-SA 4.0 ([ADR-014](decisiones/ADR-014-licencia-gpl.md)).

@@ -1,10 +1,10 @@
 # 07 Diseño visual
 
-Cómo se ve y cómo se usa la aplicación en el gimnasio. El boceto interactivo está en [diseno/prototipo-pantallas.html](diseno/prototipo-pantallas.html), se abre en cualquier navegador y permite cambiar entre tema oscuro y claro, entre las dos paletas, y probar las pantallas.
+Cómo se ve y cómo se usa la aplicación en el gimnasio. La historia de cómo se llegó a esta estética está en [historia](historia.md).
 
 ## Principios para usarla entrenando
 
-- **Una mano y el pulgar.** Lo que se toca durante la serie está en la parte de abajo de la pantalla. El botón principal ocupa todo el ancho y mide 60 px de alto, y los controles de peso y repeticiones miden al menos 52 px.
+- **Una mano y el pulgar.** Lo que se toca durante la serie está en la parte de abajo de la pantalla. El botón principal ocupa todo el ancho, y los controles de peso y repeticiones son grandes.
 - **Una cosa por pantalla.** Durante una serie se ve un solo ejercicio, con lo que se hizo la vez anterior a la vista.
 - **Se lee de lejos y con las manos transpiradas.** Los números principales son grandes y en negrita, con cifras de ancho fijo para que no salten.
 - **El color nunca está solo.** Mejoró (▲), igual (=) y por debajo (▼) llevan símbolo y texto además de color.
@@ -12,32 +12,37 @@ Cómo se ve y cómo se usa la aplicación en el gimnasio. El boceto interactivo 
 
 ## Temas
 
-La aplicación tiene tema oscuro y tema claro, y por defecto sigue el del teléfono, con una opción para cambiarlo a mano.
+La aplicación tiene tema oscuro y tema claro, y por defecto sigue el del teléfono, con una opción para cambiarlo a mano. El tema claro no usa blanco puro, el fondo es un gris suave. El oscuro tampoco usa negro puro, para que el contraste no canse. En los dos casos el color principal cambia de tono para mantener buena legibilidad.
 
-El tema claro no usa blanco puro. El fondo es un gris suave, las tarjetas son apenas más claras que el fondo y el texto es un gris casi negro en lugar de negro. En el tema oscuro el fondo tampoco es negro puro, para que el contraste no canse. En los dos casos el color principal cambia de tono para mantener buena legibilidad sobre cada fondo.
+## Color y tipografía
 
-## Color, tipografía y relieve
+La estética está en [ADR-009](decisiones/ADR-009-estetica-y-tipografia.md). Cada módulo tiene su color, EntrenAndo naranja, AlimentAndo verde y CaminAndo azul. La suite tiene el suyo, el violeta, que es el de "Ando" en el nombre. La tipografía es Figtree, con cifras de ancho fijo. Las tarjetas y los botones llevan un relieve suave y un degradé.
 
-La estética actual está en [ADR-009](decisiones/ADR-009-estetica-y-tipografia.md). Cada módulo tiene su color, EntrenAndo naranja, AlimentAndo verde y CaminAndo azul, sobre una base oscura o clara según el tema del teléfono. La suite tiene su propio color, el violeta, que es el de "Ando" en el nombre. La tipografía es Figtree, con cifras de ancho fijo. Las tarjetas y los botones llevan un relieve suave y un degradé. Hay capturas en [diseno/capturas](diseno/capturas).
+## Logo y pantalla de carga
 
-Los colores de la paleta índigo anterior, que figuran en el boceto interactivo y en [ADR-002](decisiones/ADR-002-identidad-visual.md), ya no se usan. Se conserva de esa decisión el criterio de los temas, el gris suave del claro y que el resultado nunca dependa solo del color.
+El logo es un círculo de tres sectores que comparten sus bordes, uno por módulo. Lleva una kettlebell sobre naranja, un bowl de ensalada con un tenedor sobre verde y unas huellas sobre azul ([ADR-008](decisiones/ADR-008-mejorando-nombre-y-logo.md)). Cada módulo usa su sector como ícono propio. El ícono de instalación llena todo el cuadrado con los tres sectores, para que el sistema lo recorte como un círculo.
 
-## Imagen y logo
+La pantalla de carga muestra seis huellas que aparecen una a una, con los colores del degradé de la marca, hasta llegar al nombre ([ADR-006](decisiones/ADR-006-logo-y-pantalla-de-carga.md)). Dura cuatro segundos, respeta la preferencia de reducir el movimiento y se puede saltar con un toque. Los archivos están en [diseno/logo](diseno/logo).
 
-La miniatura junto al nombre del ejercicio es la imagen del ejercicio, o un ícono del músculo o equipamiento si no hay imagen. Al tocarla se agranda y muestra el enlace al video si existe.
+## Pantallas
 
-El logo de MejorAndo es un círculo de tres sectores que comparten sus bordes, uno por módulo, con una kettlebell sobre naranja, un bowl de ensalada con un tenedor sobre verde y unas huellas sobre azul, como se registra en [ADR-008](decisiones/ADR-008-mejorando-nombre-y-logo.md). Cada módulo usa su sector como ícono propio, junto al nombre de su sección. La pantalla de carga muestra huellas que aparecen una a una, y se mantiene de [ADR-006](decisiones/ADR-006-logo-y-pantalla-de-carga.md). El logo no aparece durante la sesión de entrenamiento. Va en la landing, en el ícono de instalación, en la pantalla de carga y como marca chica en las pantallas de gestión. Los archivos están en [diseno/logo](diseno/logo) y [diseno/logo/exploracion](diseno/logo/exploracion).
+| | | |
+|---|---|---|
+| ![Una serie](diseno/capturas/serie.webp) | ![Comparación con la vez anterior](diseno/capturas/comparar.webp) | ![Descanso](diseno/capturas/descanso.webp) |
+| **Serie.** El ejercicio con su dibujo, lo que pide el plan, peso y repeticiones con atajos | **Comparación.** La última vez, y si se mejoró, con símbolo y texto | **Descanso.** Cronómetro circular que cambia de color al final |
+| ![Un mesociclo](diseno/capturas/mesociclo.webp) | ![Compartir](diseno/capturas/compartir.webp) | ![Catálogo](diseno/capturas/biceps.webp) |
+| **Mesociclo.** Los días con sus ejecuciones | **Compartir.** Pasar una rutina a otra persona | **Catálogo.** Los ejercicios por grupo, con su dibujo |
 
-## Pantallas del entrenamiento
-
-- **Serie.** El ejercicio con su músculo y lo que pide el plan, la aproximación resumida (no se anota), las series efectivas con la de ahora destacada, lo de la última vez en el color principal, selectores de peso y repeticiones, la comparación en vivo y el botón de "Serie hecha".
-- **Descanso.** Cronómetro circular grande, con +15 y -15 segundos, lo que se acaba de hacer comparado con la vez anterior, lo que sigue con el peso sugerido y "Empezar ya". El tiempo se calcula con la hora de fin, así sigue bien si la pantalla se bloquea.
-- **JumpSet.** Se ve el paso actual de la ronda, con el descanso que sigue entre un ejercicio y el otro, y las rondas ya hechas.
-- **Lista del entrenamiento.** Todos los ejercicios del día, con lo hecho, lo que sigue, y los JumpSets agrupados.
+- **Serie.** El ejercicio con su músculo, el objetivo del plan, la última vez, selectores de peso y repeticiones, y el botón de "Serie hecha".
+- **Descanso.** El tiempo se calcula con la hora de fin, así sigue bien si la pantalla se bloquea. Muestra lo que se acaba de hacer comparado con la vez anterior, y lo que sigue.
+- **JumpSet.** Se ve el paso actual de la ronda, con el descanso que sigue entre un ejercicio y el otro.
+- **Lista del entrenamiento.** Todos los ejercicios del día, con lo hecho y lo que sigue.
+- **Resumen.** Las series de una sesión terminada, que se pueden corregir o borrar.
 
 ## Accesibilidad
 
 - Contraste suficiente entre texto y fondo en los dos temas.
-- Objetivos táctiles de al menos 48 px.
+- Objetivos táctiles grandes.
 - El estado de una serie nunca depende solo del color.
 - La pantalla se mantiene encendida durante la sesión.
+- Se respeta la preferencia de reducir el movimiento.

@@ -1,52 +1,53 @@
 # 04 Hoja de ruta
 
-El orden en que se construye la aplicación. Cada fase deja algo que funciona y se puede probar, y ninguna empieza antes de que las decisiones que necesita estén tomadas.
+El orden en que se construyó y se construye la aplicación. Cada etapa deja algo que funciona y se puede probar.
 
-## Fase 0, diseño
+## Hecho
 
-Documentación de visión, dominio y arquitectura, y las decisiones registradas. Esta carpeta es el resultado de esta fase. Termina cuando las preguntas abiertas críticas están resueltas y el primer diseño de pantallas está acordado.
+### Esqueleto que funciona de punta a punta
 
-## Fase 1, esqueleto que funciona de punta a punta
+- Repositorio, integración continua y publicación automática.
+- Una aplicación instalable como PWA, con aviso de versión nueva.
+- Uso sin cuenta desde el primer día ([ADR-004](decisiones/ADR-004-uso-sin-cuenta.md)).
 
-Una versión mínima pero completa, desplegada, antes de agregar funciones.
+### Catálogo y plan
 
-- Repositorio, integración continua y despliegue automático.
-- Una pantalla de cliente instalable como PWA, con un cambio de versión probado.
-- Una API con una entidad de ejemplo, la base de datos migrada y las pruebas corriendo.
-- Uso sin cuenta desde el primer día, y cuenta opcional para sincronizar ([ADR-004](decisiones/ADR-004-uso-sin-cuenta.md)).
-
-La idea es que cada cambio posterior ya tenga dónde apoyarse y pasar por las pruebas y la publicación.
-
-## Fase 2, catálogo y plan
-
-- Catálogo de ejercicios, con los propios del usuario.
-- Crear y editar macrociclos, mesociclos, entrenamientos y la matriz de prescripciones.
+- Catálogo de ejercicios por grupo muscular, con ejercicios propios y dibujos ([ADR-012](decisiones/ADR-012-ilustraciones-de-ejercicios.md)).
+- Macrociclos, mesociclos simples y avanzados, días y ejecuciones ([ADR-010](decisiones/ADR-010-cuatro-niveles-y-descansos-fijos.md)).
+- Protocolos JumpSet, rest pause y escalonado.
 - Todo funciona sin conexión.
 
-## Fase 3, entrenamiento guiado y registro
+### Entrenamiento guiado y registro
 
-- La vista de entrenamiento del día, ejercicio por ejercicio.
-- Series de aproximación y efectivas, con descansos y cronómetro.
-- Registro de peso y repeticiones, con JumpSets y técnicas.
-- Comparación con la vez anterior en cada serie.
+- La vista del día, ejercicio por ejercicio, con series de aproximación y efectivas.
+- Descansos fijos que avisan con color, sonido y vibración ([ADR-011](decisiones/ADR-011-avisos-del-descanso-y-control-numerico.md)).
+- Comparación de cada serie con la vez anterior.
+- Control numérico pensado para el gimnasio, con toques sostenidos y atajos de peso.
 
-## Fase 4, sincronización
+### Beta
 
-- Cola de pendientes, envío idempotente y descarga de cambios.
-- Varios dispositivos y resolución de conflictos.
-- Respaldo, exportación y borrado de la cuenta.
+- Instalación desde un botón propio y compartir rutinas ([ADR-013](decisiones/ADR-013-compartir-rutinas-e-instalacion.md)).
+- Datos protegidos, recordatorio de copia y corrección de lo cargado ([ADR-015](decisiones/ADR-015-beta-datos-copias-y-correcciones.md)).
+- Paseo de bienvenida, recomendaciones y preguntas frecuentes ([ADR-016](decisiones/ADR-016-paseo-y-recomendaciones.md)).
+- Licencia libre ([ADR-014](decisiones/ADR-014-licencia-gpl.md)) y herramientas de desarrollo fuera de la versión publicada ([ADR-017](decisiones/ADR-017-herramientas-de-desarrollo.md)).
+- Una landing con la historia, las capturas y las preguntas frecuentes.
 
-## Fase 5, progreso
+## En curso
 
-- Vista de todas las ocurrencias de un entrenamiento una al lado de la otra.
-- Evolución por ejercicio, por mesociclo y por macrociclo.
+- **Publicación definitiva** en GitHub Pages, con los dos repositorios públicos y la landing enlazada a la app.
+- **Plantillas de rutinas** clásicas para empezar, revisadas antes de incluirlas ([borrador](plantillas-borrador.md)).
 
-## Fase 6, landing y apertura
+## Próximo
 
-- Página de presentación con la reseña del proceso y las recomendaciones.
-- Política de privacidad y consentimiento.
-- Apertura a las primeras personas.
+- **Comparar ejecuciones** del mismo día, una al lado de la otra, y ver la evolución de cada ejercicio con el tiempo.
+- Los siete ejercicios del catálogo que todavía no tienen dibujo.
+- Probar la aplicación en iPhone.
 
 ## Después
 
-Los módulos de peso y medidas, nutrición, comidas y actividad, y el resto de las ideas, están en [posibles mejoras](05-posibles-mejoras.md).
+- **AlimentAndo**, con calorías, peso y medidas.
+- **CaminAndo**, con los pasos diarios.
+- Una cuenta opcional para sincronizar entre teléfonos.
+- Otros idiomas, si la app crece.
+
+Las ideas que quedan fuera de este orden están en [05 Posibles mejoras](05-posibles-mejoras.md).

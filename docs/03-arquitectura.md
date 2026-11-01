@@ -1,13 +1,13 @@
 # 03 Arquitectura
 
-Este documento describe cómo se construye la aplicación. Las decisiones tomadas tienen su registro en [decisiones](decisiones/README.md). Lo que está marcado como **propuesta** todavía no está acordado.
+Este documento describe cómo está construida la aplicación hoy. Las decisiones tienen su registro en [decisiones](decisiones/README.md). Lo que todavía no existe, como una cuenta o la sincronización, está en [05 Posibles mejoras](05-posibles-mejoras.md).
 
 ## Requisitos que mandan sobre el diseño
 
-1. Los flujos esenciales funcionan sin conexión, y en un gimnasio sin señal se puede planificar, entrenar y anotar.
-2. Los datos viven en el teléfono, y el servidor es la copia de respaldo y el punto de encuentro entre dispositivos.
-3. Se puede instalar sin pasar por una tienda y se actualiza sola.
-4. Los datos de salud son sensibles y se tratan con cuidado desde el diseño.
+1. Los flujos esenciales funcionan sin conexión. En un gimnasio sin señal se puede planificar, entrenar y anotar.
+2. Los datos viven en el teléfono y no hay servidor del que se dependa.
+3. Se instala sin pasar por una tienda y se actualiza con un aviso.
+4. Los datos de salud son sensibles. La app no recolecta ninguno ni los envía a ningún lado.
 5. Se usa con una mano y entre series, así que la interfaz es rápida, grande y tolerante a errores.
 
 ## Visión general
@@ -15,92 +15,82 @@ Este documento describe cómo se construye la aplicación. Las decisiones tomada
 ```mermaid
 flowchart LR
     subgraph Telefono["Teléfono (PWA instalada)"]
-        UI["Interfaz"]
-        SW["Service worker<br/>código de la app en caché"]
-        DB[("IndexedDB<br/>datos locales")]
-        OUT["Cola de pendientes"]
+        UI["Interfaz React"]
+        DOM["Reglas del dominio<br/>TypeScript puro"]
+        DB[("IndexedDB<br/>Dexie")]
+        SW["Service worker<br/>precaché de la app"]
+        UI --> DOM
         UI --> DB
-        UI --> OUT
         SW --- UI
     end
-    subgraph Servidor["Servidor"]
-        API["API REST<br/>Spring Boot"]
-        PG[("PostgreSQL")]
-        API --> PG
-    end
-    OUT -- "sincroniza cuando hay conexión" --> API
-    API -- "cambios nuevos" --> DB
-    LAND["Landing<br/>sitio estático"]
+    HOST["Sitio estático con HTTPS"] -- "versión nueva, con aviso" --> SW
+    FORM["Formulario de comentarios<br/>fuera de la app"]
+    UI -. "enlace" .-> FORM
 ```
 
-## Decisión 1, plataforma
-
-La aplicación es una PWA con enfoque offline-first. Está registrada en [ADR-001](decisiones/ADR-001-plataforma-pwa-offline-first.md).
+La app es una PWA con enfoque offline-first ([ADR-001](decisiones/ADR-001-plataforma-pwa-offline-first.md)). Una vez instalada, todo el código y las imágenes están en el teléfono. La conexión solo sirve para bajar una versión nueva.
 
 ## Cliente
 
 Acordado en [ADR-003](decisiones/ADR-003-stack-del-cliente.md).
 
-- **Interfaz.** React con TypeScript y Vite, que es el stack con el que el autor ya trabaja y con el que un agente de IA rinde mejor.
-- **Instalación y caché.** Un service worker generado con Workbox, a través del plugin de PWA de Vite.
-- **Datos locales.** IndexedDB, con una capa liviana como Dexie para trabajar con ella.
-- **Estilos.** CSS propio con variables, con tema claro y oscuro, de modo que sea cómodo de leer en un gimnasio.
-- **Cronómetros.** Se calculan a partir de la hora de finalización y no contando segundos, porque los navegadores frenan los temporizadores con la pantalla bloqueada. Se pide mantener la pantalla encendida durante la sesión.
+| Pieza | Tecnología |
+|---|---|
+| Interfaz | React 19, TypeScript y Vite 7, con react-router |
+| Instalación y caché | vite-plugin-pwa, con actualización que pide confirmación |
+| Datos locales | IndexedDB a través de Dexie, con migraciones entre versiones |
+| Estilos | CSS propio con variables, tema claro y oscuro, tipografía Figtree |
+| Sonido | WebAudio, con tonos generados en el momento, sin archivos de audio |
 
-## Servidor (propuesta)
+### Organización del código
 
-- **API REST con Spring Boot y PostgreSQL**, organizada como un monolito modular, con capas claras y DTOs, igual que los otros proyectos del autor.
-- **Migraciones de base de datos versionadas** con una herramienta como Flyway, para que el esquema evolucione sin romper nada.
-- **Autenticación.** La aplicación se usa sin cuenta. Una cuenta es opcional y sirve solo para conectar los datos del teléfono con el servidor ([ADR-004](decisiones/ADR-004-uso-sin-cuenta.md)). El método para crearla y abrirla sigue pendiente (ver preguntas abiertas) y tiene que funcionar bien con una app que trabaja sin conexión.
-- **Errores** en formato estándar `ProblemDetail`.
+El código del cliente está en `web/src`.
 
-## Sincronización
+| Carpeta | Contenido |
+|---|---|
+| `domain` | Las reglas del entrenamiento como funciones puras, sin pantallas ni base de datos. Es lo que más pruebas tiene |
+| `db` | La base local, las consultas, la copia de seguridad y el compartir rutinas |
+| `app` | La estructura de la aplicación, preferencias, sonido, instalación, paseo, copias y almacenamiento |
+| `features` | Las pantallas, separadas por módulo (entrenamiento, inicio y ajustes) |
+| `ui` y `brand` | Los componentes comunes, el logo y la pantalla de carga |
 
-El cliente trabaja siempre contra sus datos locales. Cada cambio se guarda localmente y queda en una cola de pendientes. Cuando hay conexión, se envía al servidor y se traen los cambios nuevos.
+Separar las reglas de las pantallas permite probarlas sin abrir un navegador y cambiar la interfaz sin tocar cómo se calcula una comparación o un descanso.
 
-Reglas de diseño.
+## Decisiones técnicas que conviene conocer
 
-- **Identificadores generados en el dispositivo,** para crear registros sin conexión sin chocar con el servidor.
-- **El envío es idempotente.** Si el teléfono reenvía algo, el servidor no lo registra dos veces.
-- **Cada registro lleva una marca de versión,** y la descarga de cambios pide solo lo posterior a la última sincronización.
-- **Borrado lógico,** para poder propagar un borrado a otros dispositivos.
-- **Resolución de conflictos.** Para el plan, gana la última modificación por registro. Para las series realizadas, que solo se agregan, no hay conflicto posible.
-- **Cuándo se sincroniza.** Al abrir la app, al volver la conexión y al terminar una sesión. Safari no soporta la sincronización automática en segundo plano, así que no se puede depender de ella.
-
-## Actualizaciones de la aplicación
-
-- Se publica una versión nueva en el servidor y los usuarios la reciben sin pasar por ninguna tienda.
-- La app descarga la versión nueva en segundo plano y muestra un aviso para activarla.
-- **Los datos locales tienen versión.** Cuando cambia la forma de guardarlos, la app migra lo que ya está en el teléfono sin perderlo.
-- **La API es compatible hacia atrás durante un tiempo,** porque durante unos días puede haber teléfonos con una versión anterior hablando con un servidor más nuevo.
-
-## Seguridad y privacidad
-
-- Los datos de salud son datos personales sensibles. Se aplica el principio de recolectar solo lo necesario.
-- La comunicación va siempre cifrada (HTTPS), y, si se usan contraseñas, se guardan con hash.
-- La persona puede exportar todos sus datos y borrar su cuenta.
-- Como la normativa depende del país de cada usuario (en Argentina, la Ley 25.326), hace falta una política de privacidad y un consentimiento claro antes de abrir la app al público.
-- El almacenamiento del navegador puede ser borrado, sobre todo en iPhone. Por eso el servidor guarda un respaldo y la app ofrece una exportación.
+- **Los cronómetros se calculan con la hora de fin** y no contando segundos, porque los navegadores frenan los temporizadores con la pantalla bloqueada. La app pide mantener la pantalla encendida durante la sesión.
+- **El plan se copia dentro de la sesión.** Editar una rutina no cambia lo que ya se hizo.
+- **Una sola sesión activa.** Simplifica el estado y evita datos cruzados.
+- **Los datos tienen versión.** La base pasó de las series sueltas a los cuatro niveles con una migración que conserva lo que ya estaba cargado.
+- **Almacenamiento protegido.** La app le pide al navegador no borrar sus datos y avisa en Ajustes si lo concedió. De todos modos recuerda guardar una copia cada dos semanas ([ADR-015](decisiones/ADR-015-beta-datos-copias-y-correcciones.md)).
+- **Herramientas de desarrollo fuera de la versión publicada.** El modo de prueba solo existe al desarrollar o con una compilación hecha a propósito ([ADR-017](decisiones/ADR-017-herramientas-de-desarrollo.md)).
+- **Aviso de actualización.** La versión nueva se descarga en segundo plano y se activa cuando la persona lo decide.
 
 ## Calidad
 
-Se aplican buenas prácticas desde el primer día, aunque el autor todavía no domine todas.
+Se aplican buenas prácticas desde el primer día.
 
-- **Pruebas automáticas.** Unitarias y de integración en el servidor, pruebas de componentes y de extremo a extremo en el cliente.
-- **Integración continua** que corre las pruebas en cada cambio.
-- **Revisión del código** antes de integrar cualquier cambio.
-- **Accesibilidad y rendimiento** medidos con las herramientas de PWA del navegador.
+- **Pruebas automáticas** con Vitest y Testing Library. Cubren las reglas del dominio, la base de datos con sus migraciones, la copia y el compartir, las pantallas principales y el paseo. Hoy son 74.
+- **Tipos estrictos** con TypeScript y revisión de estilo con ESLint y Prettier.
+- **Integración continua** en GitHub Actions. En cada cambio corre el lint, la verificación de tipos, las pruebas y la compilación.
 - **Decisiones registradas** en esta carpeta, y documentación al día.
 
-## Despliegue
+## Seguridad y privacidad
 
-- El cliente y la landing se publican como sitio estático con HTTPS, que es requisito de una PWA.
-- El servidor se despliega como un contenedor, con la base de datos en un servicio gestionado.
-- Con una app que funciona sin conexión, el arranque lento de un servidor gratuito deja de ser un problema para el usuario, porque no tiene que esperar para usarla.
+- La app **no recolecta datos** y no tiene cuentas, anuncios ni analítica. Todo queda en el teléfono.
+- El formulario de comentarios es un enlace externo. No se envía nada de lo que la persona guardó.
+- La comunicación va siempre cifrada, porque una PWA lo exige.
+- La persona puede exportar sus datos y borrarlos.
+- El almacenamiento del navegador puede ser borrado por el sistema, sobre todo en iPhone. Por eso la app ofrece la copia de seguridad y la recuerda.
+- La app no da indicaciones médicas. Recomienda consultar con un médico antes de empezar un plan ([ADR-016](decisiones/ADR-016-paseo-y-recomendaciones.md)).
 
-## Organización del repositorio
+## Publicación
 
-Un único repositorio, con la documentación (`docs`), el cliente (`web`) y, cuando llegue el momento, el servidor en carpetas separadas. Es más simple para trabajar con un agente, porque el documento de diseño y el código quedan juntos y se pueden cambiar en un solo paso. Está registrado en [ADR-007](decisiones/ADR-007-repositorio-y-publicacion.md).
+La aplicación se publica como un sitio estático con HTTPS. Cada cambio pasa por la integración continua y se despliega solo. Cada dirección es un origen distinto para el navegador, así que cambiar de dirección implica guardar una copia en la anterior y restaurarla en la nueva. Los detalles están en [ADR-007](decisiones/ADR-007-repositorio-y-publicacion.md).
+
+## Si la app crece
+
+Estas piezas no existen hoy y se describen en las posibles mejoras: una cuenta opcional para sincronizar entre teléfonos ([ADR-004](decisiones/ADR-004-uso-sin-cuenta.md)), un servidor para el respaldo, y los módulos de alimentación y pasos.
 
 ## Decisiones pendientes
 

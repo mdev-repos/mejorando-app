@@ -2,7 +2,7 @@
 
 ## Estado
 
-Aceptada, 2026-10-31. El método para crear y abrir la cuenta queda pendiente.
+Aceptada, 2026-10-31. El uso sin cuenta está en marcha. La cuenta opcional todavía no se construyó, y el método para crearla y abrirla queda pendiente.
 
 ## Contexto
 

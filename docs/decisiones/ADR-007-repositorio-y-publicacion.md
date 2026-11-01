@@ -2,7 +2,7 @@
 
 ## Estado
 
-Aceptada, 2026-10-31.
+Aceptada, 2026-10-31. La publicación de prueba en Netlify se reemplaza por la publicación definitiva en GitHub Pages, con los repositorios públicos, en una decisión posterior.
 
 ## Contexto
 
