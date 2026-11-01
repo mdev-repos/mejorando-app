@@ -126,3 +126,15 @@ export async function importPlan(
   )
   return { macroId: macro.id, mesocycles: newMesos.length, trainings: newTrainings.length }
 }
+
+/** Lee una rutina pegada como texto, aunque venga con algo de más antes o después, como pasa en un chat. */
+export function parsePlanText(text: string): unknown {
+  const from = text.indexOf('{')
+  const to = text.lastIndexOf('}')
+  if (from < 0 || to <= from) throw new Error('El texto no es una rutina de MejorAndo')
+  try {
+    return JSON.parse(text.slice(from, to + 1))
+  } catch {
+    throw new Error('El texto no está completo. Copiá el mensaje entero y probá de nuevo.')
+  }
+}

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { ModuleIcon, ModuleName } from '../../brand/Logo'
 import { db } from '../../db/db'
 import { createMacro } from '../../db/queries'
-import { importPlan } from '../../db/share'
+import { importPlan, parsePlanText } from '../../db/share'
 import { TopBar } from '../../ui/components'
 import { formatDate, formatDuration } from './format'
 import { macroProgress } from './progress'
@@ -58,16 +58,22 @@ export function GymHome() {
 
   const [message, setMessage] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
+  const [pasting, setPasting] = useState(false)
+  const [pasted, setPasted] = useState('')
 
   async function doImport(file: File | undefined) {
     if (!file) return
+    await load(await file.text())
+    if (fileRef.current) fileRef.current.value = ''
+  }
+
+  async function load(text: string) {
     try {
-      const r = await importPlan(db, JSON.parse(await file.text()))
+      const r = await importPlan(db, parsePlanText(text))
       navigate(`/gym/macro/${r.macroId}`)
     } catch (e) {
-      setMessage(e instanceof Error ? e.message : 'No se pudo leer el archivo.')
+      setMessage(e instanceof Error ? e.message : 'No se pudo leer la rutina.')
     }
-    if (fileRef.current) fileRef.current.value = ''
   }
 
   async function create() {
@@ -115,6 +121,37 @@ export function GymHome() {
           <button className="btn small" onClick={() => fileRef.current?.click()}>
             Cargar una rutina recibida
           </button>
+          {pasting ? (
+            <div className="card stack">
+              <label className="t2" htmlFor="pegado">
+                Pegá acá el mensaje con la rutina
+              </label>
+              <textarea
+                id="pegado"
+                className="search"
+                rows={4}
+                value={pasted}
+                onChange={(e) => setPasted(e.target.value)}
+                style={{ width: '100%' }}
+              />
+              <div className="two">
+                <button className="btn small" onClick={() => setPasting(false)}>
+                  Cancelar
+                </button>
+                <button
+                  className="btn small primary"
+                  disabled={!pasted.trim()}
+                  onClick={() => void load(pasted)}
+                >
+                  Cargar
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button className="btn small" onClick={() => setPasting(true)}>
+              Pegar una rutina como texto
+            </button>
+          )}
           <input
             ref={fileRef}
             type="file"

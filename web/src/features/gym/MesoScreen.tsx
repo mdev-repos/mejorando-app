@@ -2,9 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ModuleIcon } from '../../brand/Logo'
-import { fileSlug, shareJson } from '../../app/files'
 import { db } from '../../db/db'
-import { exportPlan } from '../../db/share'
 import {
   type ExecutionStatus,
   createDay,
@@ -17,6 +15,7 @@ import {
 } from '../../db/queries'
 import type { Mesocycle, Session, Training } from '../../domain/types'
 import { NameField, Stepper, TopBar } from '../../ui/components'
+import { SharePlan } from './SharePlan'
 
 function DayCard(props: {
   day: Training
@@ -135,7 +134,6 @@ export function MesoScreen() {
   )
   const active = useLiveQuery(() => db.sessions.where('status').equals('active').first(), [])
   const [confirmDelete, setConfirmDelete] = useState(false)
-  const [message, setMessage] = useState('')
 
   if (meso === undefined) return null
   if (meso === null || meso.deletedAt) {
@@ -234,32 +232,7 @@ export function MesoScreen() {
           </button>
         </div>
 
-        <div className="sect">Compartir</div>
-        <div className="card stack">
-          <p className="t2">
-            Se envía esta rutina con sus días, sin tu historial. Quien la reciba la carga desde
-            Entrenamiento.
-          </p>
-          <button
-            className="btn small"
-            onClick={async () => {
-              try {
-                const { file, name } = await exportPlan(db, { mesoId: meso.id })
-                const how = await shareJson(`rutina-${fileSlug(name)}`, file, name)
-                setMessage(how === 'saved' ? 'Se guardó el archivo en tus descargas.' : '')
-              } catch (e) {
-                setMessage(e instanceof Error ? e.message : 'No se pudo compartir.')
-              }
-            }}
-          >
-            Compartir mesociclo
-          </button>
-          {message && (
-            <p className="t2" role="status">
-              {message}
-            </p>
-          )}
-        </div>
+        <SharePlan target={{ mesoId: meso.id }} label="mesociclo" />
 
         <div style={{ height: 22 }} />
         <button

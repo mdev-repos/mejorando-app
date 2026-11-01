@@ -769,13 +769,23 @@ function Summary({ session, byId }: { session: Session; byId: Lookup }) {
             item.kind === 'jumpset' ? item.steps.map((s) => s.exerciseId) : [item.exerciseId]
           return (
             <div className="card" key={item.id} style={{ marginBottom: 10 }}>
-              <div className="t1">{itemTitle(item, byId)}</div>
+              <div className="row" style={{ gap: 12 }}>
+                {item.kind !== 'jumpset' && byId(item.exerciseId) && (
+                  <GroupThumb group={byId(item.exerciseId)!.group} exerciseId={item.exerciseId} />
+                )}
+                <div className="t1 grow">{itemTitle(item, byId)}</div>
+              </div>
               {exerciseIds.map((exId) => {
                 const rows = sets.filter((s) => s.exerciseId === exId)
                 if (!rows.length) return null
                 return (
                   <div key={exId} style={{ marginTop: 6 }}>
-                    {item.kind === 'jumpset' && <div className="t2">{byId(exId)?.name}</div>}
+                    {item.kind === 'jumpset' && (
+                      <div className="row" style={{ gap: 10 }}>
+                        {byId(exId) && <GroupThumb group={byId(exId)!.group} exerciseId={exId} />}
+                        <div className="t2">{byId(exId)?.name}</div>
+                      </div>
+                    )}
                     {rows.map((s) => (
                       <div key={s.id} className="row" style={{ padding: '3px 0' }}>
                         {s.kind === 'approach' ? (

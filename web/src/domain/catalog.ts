@@ -1,4 +1,5 @@
 import type { Equipment, Exercise, LoadKind } from './types'
+import { EXTRA_EXERCISES } from './catalogExtra'
 import type { MuscleGroupId } from './muscles'
 
 function ex(
@@ -12,7 +13,7 @@ function ex(
 }
 
 /** Catálogo inicial. Los ejercicios propios de cada persona se suman aparte. */
-export const SEED_EXERCISES: Exercise[] = [
+const CORE_EXERCISES: Exercise[] = [
   ex('press-banca', 'Press banca', 'pectorales', 'barra'),
   ex('press-banca-inclinado', 'Press inclinado con mancuernas', 'pectorales', 'mancuernas'),
   ex('aperturas-mancuernas', 'Aperturas con mancuernas', 'pectorales', 'mancuernas'),
@@ -63,3 +64,5 @@ export const SEED_EXERCISES: Exercise[] = [
   ex('elevacion-piernas', 'Elevación de piernas', 'abdominales', 'peso-corporal', 'bodyweight'),
   ex('rueda-abdominal', 'Rueda abdominal', 'abdominales', 'otro', 'bodyweight'),
 ]
+
+export const SEED_EXERCISES: Exercise[] = [...CORE_EXERCISES, ...EXTRA_EXERCISES]

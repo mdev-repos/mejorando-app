@@ -2,7 +2,7 @@ import 'fake-indexeddb/auto'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { MejorAndoDB } from './db'
 import { createDay, createMacro, createMeso, saveItems } from './queries'
-import { exportPlan, importPlan } from './share'
+import { exportPlan, importPlan, parsePlanText } from './share'
 
 let db: MejorAndoDB
 
@@ -86,5 +86,20 @@ describe('compartir rutinas', () => {
     await expect(importPlan(db, { format: 'mejorando', version: 3 })).rejects.toThrow(
       'no es una rutina',
     )
+  })
+})
+
+describe('rutina pegada como texto', () => {
+  it('encuentra la rutina aunque el chat agregue texto alrededor', async () => {
+    const { macro } = await armar()
+    const { file } = await exportPlan(db, { macroId: macro.id })
+    const parsed = parsePlanText(`Mirá mi rutina\n${JSON.stringify(file)}\nenviado`)
+    expect((await importPlan(db, parsed)).trainings).toBe(1)
+  })
+
+  it('avisa cuando el texto está cortado o no es una rutina', () => {
+    expect(() => parsePlanText('hola')).toThrow('no es una rutina')
+    expect(() => parsePlanText('{"format": "mejorando-rut')).toThrow('no es una rutina')
+    expect(() => parsePlanText('{"a": }')).toThrow('no está completo')
   })
 })

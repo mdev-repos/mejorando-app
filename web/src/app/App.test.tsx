@@ -36,7 +36,7 @@ async function armarDia(user: User, tipo: 'simple' | 'avanzada' = 'simple') {
 async function agregarPressBanca(user: User) {
   await click(user, /agregar ejercicio/i)
   await click(user, /pectorales/i)
-  await click(user, /press banca/i)
+  await click(user, /press banca\s+barra$/i)
 }
 
 /** Guarda el ejercicio, espera a que vuelva al día y de ahí vuelve al mesociclo. */
