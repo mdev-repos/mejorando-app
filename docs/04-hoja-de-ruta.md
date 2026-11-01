@@ -30,11 +30,11 @@ El orden en que se construyó y se construye la aplicación. Cada etapa deja alg
 - Datos protegidos, recordatorio de copia y corrección de lo cargado ([ADR-015](decisiones/ADR-015-beta-datos-copias-y-correcciones.md)).
 - Paseo de bienvenida, recomendaciones y preguntas frecuentes ([ADR-016](decisiones/ADR-016-paseo-y-recomendaciones.md)).
 - Licencia libre ([ADR-014](decisiones/ADR-014-licencia-gpl.md)) y herramientas de desarrollo fuera de la versión publicada ([ADR-017](decisiones/ADR-017-herramientas-de-desarrollo.md)).
-- Una landing con la historia, las capturas y las preguntas frecuentes.
+- Una landing con la historia, las capturas y las preguntas frecuentes, y los dos repositorios públicos.
 
 ## En curso
 
-- **Publicación definitiva** en GitHub Pages, con los dos repositorios públicos y la landing enlazada a la app.
+- **Publicación definitiva** en GitHub Pages, con los dos repositorios públicos y la landing enlazada a la app ([ADR-018](decisiones/ADR-018-publicacion-en-github-pages.md)).
 - **Plantillas de rutinas** clásicas para empezar, revisadas antes de incluirlas ([borrador](plantillas-borrador.md)).
 
 ## Próximo

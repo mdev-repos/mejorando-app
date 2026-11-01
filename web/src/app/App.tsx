@@ -75,7 +75,7 @@ export function App({ splash = true }: { splash?: boolean }) {
   }, [])
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '')}>
       {!splashDone && <Splash onDone={finishSplash} />}
       {ready && <Shell />}
       {ready && splashDone && <Tour />}

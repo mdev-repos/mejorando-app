@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <a href="https://mdev-repos.github.io/mejorando/"><strong>Abrir la app</strong></a> ·
+  <a href="https://mdev-repos.github.io/mejorando-app/"><strong>Abrir la app</strong></a> ·
   <a href="https://mdev-repos.github.io/mejorando-landing/">Sitio</a> ·
   <a href="https://mdev-repos.github.io/mejorando-landing/faq.html">Preguntas frecuentes</a> ·
   <a href="docs/README.md">Documentación</a>

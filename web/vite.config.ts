@@ -3,7 +3,11 @@ import { VitePWA } from 'vite-plugin-pwa'
 import { defineConfig } from 'vitest/config'
 import pkg from './package.json'
 
-export default defineConfig({
+/** La app se publica en GitHub Pages, dentro de /mejorando-app/. En desarrollo vive en la raíz. */
+const BASE_PUBLICADA = '/mejorando-app/'
+
+export default defineConfig(({ command }) => ({
+  base: command === 'build' ? BASE_PUBLICADA : '/',
   define: { __APP_VERSION__: JSON.stringify(pkg.version) },
   plugins: [
     react(),
@@ -15,8 +19,6 @@ export default defineConfig({
         short_name: 'MejorAndo',
         description: 'Una suite para mejorar tu salud, empezando por el entrenamiento.',
         lang: 'es',
-        start_url: '/',
-        scope: '/',
         display: 'standalone',
         orientation: 'portrait',
         theme_color: '#0E1117',
@@ -34,7 +36,7 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,webp,woff2}'],
-        navigateFallback: '/index.html',
+        navigateFallback: 'index.html',
       },
     }),
   ],
@@ -44,4 +46,4 @@ export default defineConfig({
     setupFiles: ['src/test/setup.ts'],
     css: false,
   },
-})
+}))

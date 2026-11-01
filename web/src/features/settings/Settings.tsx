@@ -4,7 +4,7 @@ import { playCue, unlockAudio, useFeedbackPrefs } from '../../app/sound'
 import { markBackup, useLastBackup } from '../../app/backup'
 import { DEV_TOOLS } from '../../app/devTools'
 import { InstallCard } from '../../app/install'
-import { FEEDBACK_URL } from '../../app/links'
+import { AYUDA_URL, FEEDBACK_URL } from '../../app/links'
 import { Recomendaciones } from '../../app/Recomendaciones'
 import { replayTour } from '../../app/Tour'
 import { usePersistence } from '../../app/storage'
@@ -221,6 +221,9 @@ export function Settings() {
           <button className="btn small" onClick={replayTour}>
             Ver el paseo de nuevo
           </button>
+          <a className="btn small" href={AYUDA_URL} target="_blank" rel="noopener noreferrer">
+            Preguntas frecuentes
+          </a>
         </div>
         {FEEDBACK_URL && (
           <>

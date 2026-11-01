@@ -86,7 +86,7 @@ Se aplican buenas prácticas desde el primer día.
 
 ## Publicación
 
-La aplicación se publica como un sitio estático con HTTPS. Cada cambio pasa por la integración continua y se despliega solo. Cada dirección es un origen distinto para el navegador, así que cambiar de dirección implica guardar una copia en la anterior y restaurarla en la nueva. Los detalles están en [ADR-007](decisiones/ADR-007-repositorio-y-publicacion.md).
+La aplicación se publica como un sitio estático con HTTPS en GitHub Pages, dentro de la subruta `/mejorando-app/`. Cada cambio pasa por la integración continua y se despliega solo. Cada dirección es un origen distinto para el navegador, así que cambiar de dirección implica guardar una copia en la anterior y restaurarla en la nueva. Los detalles están en [ADR-018](decisiones/ADR-018-publicacion-en-github-pages.md).
 
 ## Si la app crece
 

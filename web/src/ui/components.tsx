@@ -29,7 +29,7 @@ export function TopBar(props: {
   )
 }
 
-/** La imagen del ejercicio si existe en /exercises, y si no, las iniciales del grupo muscular. */
+/** La imagen del ejercicio si existe en exercises, y si no, las iniciales del grupo muscular. */
 export function GroupThumb({
   group,
   big,
@@ -45,7 +45,7 @@ export function GroupThumb({
       {exerciseId && !failed ? (
         <img
           className="thumb-img"
-          src={`/exercises/${exerciseId}.webp`}
+          src={`${import.meta.env.BASE_URL}exercises/${exerciseId}.webp`}
           alt=""
           loading="lazy"
           onError={() => setFailed(true)}
