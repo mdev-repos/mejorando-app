@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { MODULES, useEnabledModules } from '../../app/modules'
 import { playCue, unlockAudio, useFeedbackPrefs } from '../../app/sound'
 import { InstallCard } from '../../app/install'
+import { FEEDBACK_URL } from '../../app/links'
 import { useTestMode } from '../../app/testMode'
 import { useThemePref, type ThemePref } from '../../app/theme'
 import { db } from '../../db/db'
@@ -179,6 +180,26 @@ export function Settings() {
             </p>
           )}
         </div>
+        {FEEDBACK_URL && (
+          <>
+            <div className="sect">Comentarios</div>
+            <div className="card stack">
+              <p className="t2">
+                ¿Algo no funciona o se te ocurre una mejora? Contámelo. Se abre un formulario fuera
+                de la app y no se envía nada de lo que guardaste.
+              </p>
+              <a
+                className="btn small"
+                href={FEEDBACK_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Dejar un comentario
+              </a>
+            </div>
+          </>
+        )}
+
         <div className="sect">Créditos</div>
         <div className="card stack">
           <p className="t2">

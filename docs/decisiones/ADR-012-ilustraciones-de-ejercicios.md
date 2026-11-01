@@ -12,7 +12,9 @@ Se usan las ilustraciones del proyecto Everkinetic (Greg Priday), publicadas con
 
 El catálogo creció de 40 a 253 ejercicios, porque se cargó todo el conjunto con ilustración para poder usarlo en cualquier mesociclo. Los 213 nuevos están en `catalogExtra.ts`, con nombre en español y el identificador de su imagen. Quedan afuera seis que no son ejercicios de pesas (cuello, tabla de equilibrio, círculos con pelota, cruz de hierro y vacío abdominal). Las imágenes pesan 1,2 MB en total y entran al precache.
 
-Los ejercicios del catálogo inicial sin dibujo equivalente siguen mostrando las iniciales del grupo muscular, porque la imagen se carga con una alternativa. Son remo con mancuerna, face pull, sentadilla búlgara, hip thrust, patada de tríceps, curl inclinado y plancha.
+Los ejercicios del catálogo inicial sin dibujo equivalente siguen mostrando las iniciales del grupo muscular, porque la imagen se carga con una alternativa. Son face pull, sentadilla búlgara, hip thrust, patada de tríceps, curl inclinado y plancha. El remo con mancuerna reutiliza el dibujo del remo para deltoides posterior con una mancuerna, que muestra el mismo movimiento apoyado en el banco.
+
+Se probó armar la sentadilla búlgara combinando piezas de otros dibujos, pero el resultado no se lee como el ejercicio. Hace falta redibujar la pierna de atrás.
 
 ## Licencia
 
