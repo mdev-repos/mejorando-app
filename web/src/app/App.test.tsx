@@ -10,6 +10,7 @@ type User = ReturnType<typeof userEvent.setup>
 beforeEach(async () => {
   window.history.pushState({}, '', '/')
   localStorage.clear()
+  localStorage.setItem('mejorando.paseo', 'hecho')
   await Promise.all([
     db.macrocycles.clear(),
     db.mesocycles.clear(),

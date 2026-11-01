@@ -13,3 +13,8 @@ if (!window.matchMedia) {
     dispatchEvent: () => false,
   })) as unknown as typeof window.matchMedia
 }
+
+// el paseo de bienvenida tapa la pantalla, así que las pruebas arrancan con el paseo ya hecho
+beforeEach(() => {
+  localStorage.setItem('mejorando.paseo', 'hecho')
+})

@@ -7,6 +7,7 @@ import { createDay, createMacro, createMeso, saveItems, startSession } from '../
 
 beforeEach(async () => {
   localStorage.clear()
+  localStorage.setItem('mejorando.paseo', 'hecho')
   sessionStorage.setItem('mejorando.splash', '1')
   await Promise.all([
     db.macrocycles.clear(),

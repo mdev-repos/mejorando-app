@@ -13,6 +13,7 @@ import { Home } from '../features/home/Home'
 import { Settings } from '../features/settings/Settings'
 import { BottomNav } from '../ui/components'
 import { unlockAudio } from './sound'
+import { Tour } from './Tour'
 import { requestPersistence } from './storage'
 import { useApplyTheme } from './theme'
 
@@ -77,6 +78,7 @@ export function App({ splash = true }: { splash?: boolean }) {
     <BrowserRouter>
       {!splashDone && <Splash onDone={finishSplash} />}
       {ready && <Shell />}
+      {ready && splashDone && <Tour />}
     </BrowserRouter>
   )
 }

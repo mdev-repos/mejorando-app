@@ -5,6 +5,8 @@ import { markBackup, useLastBackup } from '../../app/backup'
 import { DEV_TOOLS } from '../../app/devTools'
 import { InstallCard } from '../../app/install'
 import { FEEDBACK_URL } from '../../app/links'
+import { Recomendaciones } from '../../app/Recomendaciones'
+import { replayTour } from '../../app/Tour'
 import { usePersistence } from '../../app/storage'
 import { useTestMode } from '../../app/testMode'
 import { useThemePref, type ThemePref } from '../../app/theme'
@@ -199,6 +201,11 @@ export function Settings() {
           </p>
         </div>
 
+        <div className="sect">Recomendaciones</div>
+        <div className="card">
+          <Recomendaciones />
+        </div>
+
         <div className="sect">Acerca de</div>
         <div className="card stack">
           <div className="t1">MejorAndo, versión beta</div>
@@ -211,11 +218,9 @@ export function Settings() {
             <li>Con la pantalla bloqueada, el sonido del descanso puede no sonar.</li>
             <li>No hay cuentas ni sincronización. Tus datos viven solo en este teléfono.</li>
           </ul>
-          <p className="t2">
-            MejorAndo no reemplaza a un profesional de la salud. Antes de empezar un plan de
-            entrenamiento o de alimentación, consultá con tu médico. Para entrenar, con un
-            deportólogo, y para comer, con un nutricionista.
-          </p>
+          <button className="btn small" onClick={replayTour}>
+            Ver el paseo de nuevo
+          </button>
         </div>
         {FEEDBACK_URL && (
           <>
