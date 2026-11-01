@@ -217,6 +217,16 @@ p {
 .btn:active:not(:disabled) {
   filter: brightness(1.1);
 }
+/* un enlace con aspecto de botón se comporta como un botón */
+a.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  text-align: center;
+  text-decoration: none;
+  color: var(--text);
+}
 .bottom {
   padding: 10px 14px calc(14px + env(safe-area-inset-bottom));
   border-top: 1px solid var(--border);
