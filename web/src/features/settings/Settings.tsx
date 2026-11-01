@@ -213,6 +213,7 @@ export function Settings() {
               CC BY-SA 4.0
             </a>
             . Se convirtieron a otro formato y tamaño para la aplicación, sin cambiar el dibujo.
+            Siete ejercicios tienen un dibujo propio.
           </p>
           <a
             className="t2"

@@ -6,7 +6,7 @@ Lo que todavía no está decidido. Cuando una pregunta se resuelve, la respuesta
 
 1. **Revisión de marca.** El nombre MejorAndo y el logo están decididos ([ADR-008](decisiones/ADR-008-mejorando-nombre-y-logo.md)). Antes de abrir la app al público hay que revisar si el nombre se puede usar, por ejemplo en el registro de marcas, en las tiendas de aplicaciones y en dominios. También falta diseñar la versión del texto final de la pantalla de carga.
 2. **Protocolos.** En el rest pause, si en la comparación las repeticiones del tramo extra se miran aparte o se suman a la serie (la propuesta es mirarlas aparte). El descanso propuesto es de 20 segundos y se puede cambiar. Además, qué otros protocolos se agregan al JumpSet y al rest pause.
-3. **Catálogo.** Resuelto con ADR-012, hay 253 ejercicios y 246 ilustraciones. Falta cubrir los seis del catálogo inicial que no tienen dibujo, entre ellos la sentadilla búlgara.
+3. **Catálogo.** Resuelto con ADR-012, hay 253 ejercicios y 246 ilustraciones. Los siete ejercicios que faltaban se dibujaron aparte, con un estilo más simple que el resto. Queda decidir si se unifica el estilo.
 4. **Contenido de la landing y de la ayuda.** Cómo se explica sacarle más provecho a la app, y a qué creadores de contenido se recomienda además del entrenador del que aprendió el autor.
 5. **Carga de rutinas desde una planilla.** Si se agrega después del armado por catálogo, y con qué formato.
 
