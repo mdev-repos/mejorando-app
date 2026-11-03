@@ -126,7 +126,8 @@ export interface SetLog {
   at: number
 }
 
-export type SessionStatus = 'active' | 'done'
+/** En pausa es un entrenamiento empezado que se dejó para retomar más tarde. */
+export type SessionStatus = 'active' | 'paused' | 'done'
 
 /** Lo que se había cargado en un paso que se deshizo, para que quien corrige no empiece de cero. */
 export interface RedoData {

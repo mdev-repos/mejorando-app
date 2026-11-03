@@ -159,6 +159,8 @@ export interface ExecutionStatus {
   execution: number
   state: 'done' | 'active' | 'pending'
   sessionId?: string
+  /** Empezada y dejada en pausa, se retoma desde donde quedó. */
+  paused?: boolean
 }
 
 /** Qué ejecuciones de un día ya se hicieron, cuál está en curso y cuáles faltan. */
@@ -172,8 +174,16 @@ export async function executionStatus(
     const execution = i + 1
     const done = sessions.find((s) => s.execution === execution && s.status === 'done')
     if (done) return { execution, state: 'done', sessionId: done.id }
-    const active = sessions.find((s) => s.execution === execution && s.status === 'active')
-    if (active) return { execution, state: 'active', sessionId: active.id }
+    const active = sessions.find(
+      (s) => s.execution === execution && (s.status === 'active' || s.status === 'paused'),
+    )
+    if (active)
+      return {
+        execution,
+        state: 'active',
+        sessionId: active.id,
+        paused: active.status === 'paused',
+      }
     return { execution, state: 'pending' }
   })
 }
@@ -361,6 +371,28 @@ export async function undoStep(db: MejorAndoDB, sessionId: string, steps: Step[]
       endedAt: undefined,
       redo,
     })
+  })
+}
+
+/** Deja el entrenamiento en pausa. Se guarda todo lo hecho, y el descanso en marcha se descarta. */
+export async function pauseSession(db: MejorAndoDB, sessionId: string): Promise<void> {
+  await db.sessions.update(sessionId, { status: 'paused', restEndAt: null, restTotalSec: 0 })
+}
+
+/**
+ * Retoma un entrenamiento en pausa. Como la app lleva uno solo en curso a la vez,
+ * si había otro en curso queda en pausa.
+ */
+export async function resumeSession(db: MejorAndoDB, sessionId: string): Promise<void> {
+  await db.transaction('rw', db.sessions, async () => {
+    const session = await db.sessions.get(sessionId)
+    if (!session || session.status === 'done') return
+    const others = await db.sessions.where('status').equals('active').toArray()
+    for (const o of others) {
+      if (o.id !== sessionId)
+        await db.sessions.update(o.id, { status: 'paused', restEndAt: null, restTotalSec: 0 })
+    }
+    await db.sessions.update(sessionId, { status: 'active' })
   })
 }
 

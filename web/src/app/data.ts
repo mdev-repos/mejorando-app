@@ -3,7 +3,7 @@ import { useMemo } from 'react'
 import { db } from '../db/db'
 import { setWeightStep } from '../db/queries'
 import { defaultWeightStep } from '../domain/numbers'
-import type { Exercise } from '../domain/types'
+import type { Exercise, Session } from '../domain/types'
 
 /** Catálogo completo (el base más los ejercicios propios). */
 export function useExercises(): { list: Exercise[]; byId: (id: string) => Exercise | undefined } {
@@ -20,4 +20,15 @@ export function useWeightStep(exercise: Exercise | undefined): [number, (step: n
   )
   const step = saved?.weightStep ?? defaultWeightStep(exercise)
   return [step, (s) => exercise && void setWeightStep(db, exercise.id, s)]
+}
+
+/** Los entrenamientos empezados y sin terminar, el que está en curso primero y después los pausados. */
+export function useInProgress(): Session[] | undefined {
+  return useLiveQuery(async () => {
+    const list = await db.sessions.where('status').anyOf('active', 'paused').toArray()
+    return list.sort(
+      (a, b) =>
+        Number(b.status === 'active') - Number(a.status === 'active') || b.startedAt - a.startedAt,
+    )
+  }, [])
 }

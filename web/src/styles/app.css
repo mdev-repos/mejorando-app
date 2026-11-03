@@ -1285,3 +1285,46 @@ h3,
   border-radius: 6px;
   background: var(--accent);
 }
+
+/* Con pesos largos (102,5 o 87,25) el número se achica y el lápiz se esconde, para que nada se tape */
+.active-set .inputs {
+  grid-template-columns: 1.35fr 1fr;
+}
+.inputs .stepper button {
+  width: 42px;
+}
+.inputs .stepper.small button {
+  width: 38px;
+}
+.stepper input[data-len='5'] {
+  font-size: 1.3rem;
+}
+.stepper input[data-len='6'],
+.stepper input[data-len='7'] {
+  font-size: 1.1rem;
+}
+.stepper.small input[data-len='5'] {
+  font-size: 1.1rem;
+}
+.stepper.small input[data-len='6'],
+.stepper.small input[data-len='7'] {
+  font-size: 0.95rem;
+}
+.valuewrap input[data-len='5'],
+.valuewrap input[data-len='6'],
+.valuewrap input[data-len='7'] {
+  padding-right: 0;
+}
+.valuewrap:has(input[data-len='5'])::after,
+.valuewrap:has(input[data-len='6'])::after,
+.valuewrap:has(input[data-len='7'])::after {
+  display: none;
+}
+
+/* En pantallas muy angostas, peso y repeticiones van uno debajo del otro */
+@media (max-width: 350px) {
+  .inputs,
+  .active-set .inputs {
+    grid-template-columns: 1fr;
+  }
+}

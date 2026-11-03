@@ -8,6 +8,7 @@ import { createMacro } from '../../db/queries'
 import { importPlan, parsePlanText } from '../../db/share'
 import { TopBar } from '../../ui/components'
 import { formatDate, formatDuration } from './format'
+import { InProgressCards } from './InProgress'
 import { macroProgress } from './progress'
 
 function MacroCard({ id, name }: { id: string; name: string }) {
@@ -48,7 +49,6 @@ export function GymHome() {
       (await db.macrocycles.orderBy('updatedAt').reverse().toArray()).filter((m) => !m.deletedAt),
     [],
   )
-  const active = useLiveQuery(() => db.sessions.where('status').equals('active').first(), [])
   const history = useLiveQuery(
     async () =>
       (await db.sessions.where('status').equals('done').toArray())
@@ -91,17 +91,7 @@ export function GymHome() {
         subtitle="Entrenamiento de fuerza"
       />
       <div className="scroll">
-        {active && (
-          <button className="card tap" onClick={() => navigate(`/gym/sesion/${active.id}`)}>
-            <span className="chip">EN CURSO</span>
-            <div className="t1" style={{ marginTop: 8 }}>
-              {active.trainingName}
-            </div>
-            <div className="t2">
-              Ejecución {active.execution} de {active.executionsTotal} · tocá para continuar
-            </div>
-          </button>
-        )}
+        <InProgressCards />
 
         <BackupReminder />
 

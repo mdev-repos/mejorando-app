@@ -13,7 +13,9 @@ import {
   deleteSet,
   finishSession,
   flowOf,
+  pauseSession,
   previousSets,
+  resumeSession,
   saveFlow,
   stepsOf,
   undoStep,
@@ -96,7 +98,51 @@ export function SessionScreen() {
     )
   }
   if (session.status === 'done') return <Summary session={session} byId={byId} steps={steps} />
+  if (session.status === 'paused') return <Paused session={session} />
   return <Active session={session} steps={steps} byId={byId} />
+}
+
+/* ======================= sesión en pausa ======================= */
+
+function Paused({ session }: { session: Session }) {
+  const navigate = useNavigate()
+  const [confirm, setConfirm] = useState(false)
+  return (
+    <>
+      <TopBar
+        icon={<ModuleIcon module="gym" size={36} />}
+        title={session.trainingName}
+        subtitle={`Ejecución ${session.execution} de ${session.executionsTotal}`}
+        onBack={() => navigate('/gym')}
+      />
+      <div className="scroll">
+        <div className="card center">
+          <span className="chip">EN PAUSA</span>
+          <div className="t1" style={{ marginTop: 8 }}>
+            Dejaste este entrenamiento para después
+          </div>
+          <p className="t2">
+            Todo lo que anotaste está guardado. Al retomarlo seguís en el mismo paso.
+          </p>
+        </div>
+      </div>
+      <div className="bottom">
+        <button className="btn primary" onClick={() => void resumeSession(db, session.id)}>
+          Retomar
+        </button>
+        <button
+          className="btn small danger"
+          style={{ marginTop: 8 }}
+          onClick={async () => {
+            if (!confirm) return setConfirm(true)
+            await finishSession(db, session.id)
+          }}
+        >
+          {confirm ? 'Confirmar fin' : 'Terminar con lo que hice'}
+        </button>
+      </div>
+    </>
+  )
 }
 
 /* ======================= sesión en curso ======================= */
@@ -142,7 +188,16 @@ function Active({ session, steps, byId }: { session: Session; steps: Step[]; byI
       </div>
 
       {showList ? (
-        <ListView session={session} done={done} byId={byId} onClose={() => setShowList(false)} />
+        <ListView
+          session={session}
+          done={done}
+          byId={byId}
+          onClose={() => setShowList(false)}
+          onPause={async () => {
+            await pauseSession(db, session.id)
+            navigate('/gym')
+          }}
+        />
       ) : flow.restEndAt !== null ? (
         <RestView session={session} steps={steps} byId={byId} onUndo={undo} />
       ) : step?.type === 'approach' ? (
@@ -823,11 +878,13 @@ function ListView({
   done,
   byId,
   onClose,
+  onPause,
 }: {
   session: Session
   done: number
   byId: Lookup
   onClose: () => void
+  onPause: () => void
 }) {
   const [confirm, setConfirm] = useState(false)
   return (
@@ -845,6 +902,9 @@ function ListView({
         ))}
       </div>
       <div className="bottom">
+        <button className="btn small" style={{ marginBottom: 8 }} onClick={onPause}>
+          Pausar y salir
+        </button>
         <div className="two">
           <button className="btn" onClick={onClose}>
             Volver

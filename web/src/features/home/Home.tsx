@@ -1,17 +1,15 @@
-import { useLiveQuery } from 'dexie-react-hooks'
 import { Link, useNavigate } from 'react-router-dom'
 import { MODULES, useEnabledModules } from '../../app/modules'
 import { ModuleIcon, ModuleName, SuiteLogo } from '../../brand/Logo'
 import { Wordmark } from '../../brand/Wordmark'
 import { BackupReminder } from '../../app/BackupReminder'
 import { InstallCard } from '../../app/install'
-import { db } from '../../db/db'
+import { InProgressCards } from '../gym/InProgress'
 import { TopBar } from '../../ui/components'
 
 export function Home() {
   const navigate = useNavigate()
   const { isEnabled } = useEnabledModules()
-  const active = useLiveQuery(() => db.sessions.where('status').equals('active').first(), [])
   const enabled = MODULES.filter((m) => isEnabled(m.id))
 
   return (
@@ -23,15 +21,7 @@ export function Home() {
       />
       <div className="scroll">
         <div className="stack">
-          {active && (
-            <button className="card tap" onClick={() => navigate(`/gym/sesion/${active.id}`)}>
-              <span className="chip">EN CURSO</span>
-              <div className="t1" style={{ marginTop: 8 }}>
-                {active.trainingName}
-              </div>
-              <div className="t2">Tocá para continuar el entrenamiento</div>
-            </button>
-          )}
+          <InProgressCards hint="tocá para continuar el entrenamiento" />
 
           <InstallCard />
           <BackupReminder />

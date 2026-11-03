@@ -22,7 +22,19 @@
         },
         {
           "type": "nuevo",
+          "text": "Un entrenamiento se puede dejar en pausa y retomar después, desde donde lo dejaste."
+        },
+        {
+          "type": "nuevo",
           "text": "Cuando hay una versión nueva, la app te muestra qué trae antes de actualizar. Todas las novedades quedan en Ajustes."
+        },
+        {
+          "type": "arreglo",
+          "text": "Si intentabas empezar un entrenamiento con otro en curso, la app se confundía. Ahora te pregunta si querés pausar el que tenés o terminarlo. Gracias a Martín, que lo descubrió probando la app."
+        },
+        {
+          "type": "arreglo",
+          "text": "Los pesos con decimales, como 102,5, ya no quedan tapados por los botones ni sobre otras cosas en pantallas chicas."
         }
       ]
     },

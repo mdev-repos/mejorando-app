@@ -15,6 +15,7 @@ import {
 } from '../../db/queries'
 import type { Mesocycle, Session, Training } from '../../domain/types'
 import { NameField, Stepper, TopBar } from '../../ui/components'
+import { ConflictDialog, useOpenSession } from './InProgress'
 import { SharePlan } from './SharePlan'
 
 function DayCard(props: {
@@ -26,6 +27,8 @@ function DayCard(props: {
 }) {
   const { day, meso, active } = props
   const navigate = useNavigate()
+  const open = useOpenSession()
+  const [asking, setAsking] = useState<number | null>(null)
   const status = useLiveQuery(
     () => executionStatus(db, day.id, meso.executions),
     [day.id, meso.executions],
@@ -37,14 +40,22 @@ function DayCard(props: {
   const base = itemsFor(day, nextToDo?.execution ?? 1, meso.mode)
   const count = itemsFor(day, 1, meso.mode).length
 
-  async function start(execution: number) {
-    if (active) return navigate(`/gym/sesion/${active.id}`)
+  async function begin(execution: number) {
     const s = await startSession(db, day, meso, execution)
     navigate(`/gym/sesion/${s.id}`)
   }
 
+  async function start(execution: number) {
+    const own = status?.find((s) => s.execution === execution && s.state === 'active')
+    if (own?.sessionId) return open(own.sessionId)
+    // la app lleva un solo entrenamiento en curso, así que antes de empezar otro se pregunta qué hacer con ese
+    if (active) return setAsking(execution)
+    await begin(execution)
+  }
+
   async function onDot(s: ExecutionStatus) {
     if (s.state === 'pending') return start(s.execution)
+    if (s.state === 'active' && s.sessionId) return open(s.sessionId)
     if (s.sessionId) navigate(`/gym/sesion/${s.sessionId}`)
   }
 
@@ -101,11 +112,9 @@ function DayCard(props: {
           disabled={base.length === 0}
           onClick={() => start(nextToDo.execution)}
         >
-          {active && active.trainingId !== day.id
-            ? 'Terminá el entrenamiento en curso'
-            : nextToDo.state === 'active'
-              ? `Continuar ejecución ${nextToDo.execution}`
-              : `Entrenar ejecución ${nextToDo.execution}`}
+          {nextToDo.state === 'active'
+            ? `${nextToDo.paused ? 'Retomar' : 'Continuar'} ejecución ${nextToDo.execution}`
+            : `Entrenar ejecución ${nextToDo.execution}`}
         </button>
       ) : (
         <div className="chip" style={{ alignSelf: 'flex-start', marginTop: 6 }}>
@@ -114,6 +123,17 @@ function DayCard(props: {
       )}
       {nextToDo && base.length === 0 && (
         <div className="t2">Agregá ejercicios con el lápiz para poder entrenar.</div>
+      )}
+      {asking !== null && active && (
+        <ConflictDialog
+          current={active}
+          onCancel={() => setAsking(null)}
+          onChosen={() => {
+            const execution = asking
+            setAsking(null)
+            void begin(execution)
+          }}
+        />
       )}
     </div>
   )

@@ -148,6 +148,7 @@ export function Stepper(props: {
             inputMode={decimal ? 'decimal' : 'numeric'}
             enterKeyHint="done"
             value={text}
+            data-len={Math.min(text.length, 7)}
             aria-label={props.label ?? 'Valor'}
             onFocus={(e) => {
               focused.current = true

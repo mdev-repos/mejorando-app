@@ -25,6 +25,6 @@ La primera versión de EntrenAndo solo tenía el nivel del día, que se llamaba 
 
 ## Consecuencias
 
-- Se puede entrenar una sola sesión activa a la vez, y el resto de los días avisa que hay una en curso.
+- Se puede entrenar una sola sesión activa a la vez, y al querer empezar otra se pregunta qué hacer con la que está en curso ([ADR-019](ADR-019-correcciones-en-el-entrenamiento-y-novedades.md)).
 - Cambiar un mesociclo de avanzado a simple no borra las personalizaciones, pero deja de usarlas.
 - Falta todavía el resumen de progreso por macrociclo y la comparación entre ejecuciones del mismo día.

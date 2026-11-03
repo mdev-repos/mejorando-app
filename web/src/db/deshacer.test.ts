@@ -9,6 +9,9 @@ import {
   createDay,
   createMacro,
   createMeso,
+  executionStatus,
+  pauseSession,
+  resumeSession,
   saveItems,
   startSession,
   undoStep,
@@ -129,5 +132,27 @@ describe('deshacer un paso', () => {
     expect(s?.status).toBe('active')
     expect(s?.stepIndex).toBe(2)
     expect(await db.sets.count()).toBe(1)
+  })
+})
+
+describe('pausar y retomar', () => {
+  it('al retomar uno, el que estaba en curso queda en pausa', async () => {
+    const a = await nuevaSesion()
+    const b = await nuevaSesion()
+    await pauseSession(db, a.session.id)
+    expect((await db.sessions.get(a.session.id))?.status).toBe('paused')
+    await resumeSession(db, a.session.id)
+    expect((await db.sessions.get(a.session.id))?.status).toBe('active')
+    expect((await db.sessions.get(b.session.id))?.status).toBe('paused')
+  })
+
+  it('una ejecución en pausa figura como empezada y se retoma donde quedó', async () => {
+    const { session, steps } = await nuevaSesion()
+    await completeStep(db, session.id, steps, {})
+    await pauseSession(db, session.id)
+    const status = await executionStatus(db, session.trainingId, 2)
+    expect(status[0]).toMatchObject({ state: 'active', paused: true, sessionId: session.id })
+    await resumeSession(db, session.id)
+    expect((await db.sessions.get(session.id))?.stepIndex).toBe(1)
   })
 })

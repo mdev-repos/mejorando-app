@@ -35,7 +35,7 @@ Al empezar una sesión, el plan se copia dentro de ella. Así editar la rutina d
 | Día | Empuje, Tirón y Piernas |
 | Ejecución | Empuje 1, Empuje 2, Empuje 3 y Empuje 4 |
 
-La cantidad de ejecuciones es una sola para todo el mesociclo. Si hay tres días, cada uno se hace la misma cantidad de veces, para medir el progreso de manera pareja. Cada día muestra sus ejecuciones, las hechas y las que faltan. Solo hay una sesión activa a la vez.
+La cantidad de ejecuciones es una sola para todo el mesociclo. Si hay tres días, cada uno se hace la misma cantidad de veces, para medir el progreso de manera pareja. Cada día muestra sus ejecuciones, las hechas y las que faltan. Solo hay una sesión en curso a la vez. Si se quiere empezar otra, la app pregunta si se pausa la que está en curso, para retomarla después desde donde quedó, o si se termina con lo que se anotó ([ADR-019](decisiones/ADR-019-correcciones-en-el-entrenamiento-y-novedades.md)).
 
 ## Rutina simple y avanzada
 
