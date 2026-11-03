@@ -6,6 +6,7 @@ import type {
   Mesocycle,
   PlanItem,
   RoutineMode,
+  RedoData,
   Session,
   SetKind,
   SetLog,
@@ -233,7 +234,7 @@ export async function saveFlow(db: MejorAndoDB, sessionId: string, flow: FlowSta
   await db.sessions.update(sessionId, { ...flow })
 }
 
-export type NewLog = Pick<SetLog, 'weight' | 'reps' | 'setIndex'> & { kind: SetKind }
+export type NewLog = Pick<SetLog, 'weight' | 'reps' | 'setIndex' | 'techReps'> & { kind: SetKind }
 
 /**
  * Cierra el paso actual de la sesión. Guarda lo que se hizo y avanza, todo junto,
@@ -275,19 +276,91 @@ export async function completeStep(
           setIndex: l.setIndex,
           weight: l.weight,
           reps: l.reps,
+          ...(l.techReps ? { techReps: l.techReps } : {}),
           at: now + i,
         })),
       )
     }
 
     const next = advance(flowOf(session), steps, now)
-    const patch: Partial<Session> = { ...next }
+    const patch: Partial<Session> = { ...next, redo: undefined }
     if (isFinished(next, steps)) {
       patch.status = 'done'
       patch.endedAt = now
     }
     await db.sessions.update(sessionId, patch)
     return { ...session, ...patch }
+  })
+}
+
+/** Los registros que dejó un paso al completarse, para poder deshacerlo. */
+async function logsOfStep(db: MejorAndoDB, sessionId: string, step: Step): Promise<SetLog[]> {
+  const all = await db.sets.where('sessionId').equals(sessionId).toArray()
+  switch (step.type) {
+    case 'approach':
+      return all.filter((l) => l.kind === 'approach' && l.itemId === `approach:${step.group}`)
+    case 'set':
+      return all.filter(
+        (l) => l.kind === 'effective' && l.itemId === step.itemId && l.setIndex === step.setIndex,
+      )
+    case 'jump':
+      return all.filter(
+        (l) =>
+          l.kind === 'effective' &&
+          l.itemId === step.itemId &&
+          l.exerciseId === step.exerciseId &&
+          l.setIndex === step.round,
+      )
+    case 'restpause':
+      return all.filter(
+        (l) => l.kind === 'effective' && l.itemId === step.itemId && l.setIndex === step.setIndex,
+      )
+  }
+}
+
+/**
+ * Vuelve un paso atrás, por ejemplo si se tocó "Serie hecha" por error. Borra lo que ese paso
+ * guardó y lo deja anotado en `redo`, para que el formulario aparezca con esos mismos valores.
+ * Si la sesión ya había terminado, la reabre.
+ */
+export async function undoStep(db: MejorAndoDB, sessionId: string, steps: Step[]): Promise<void> {
+  await db.transaction('rw', db.sessions, db.sets, async () => {
+    const session = await db.sessions.get(sessionId)
+    if (!session) return
+    // una sesión cortada antes de tiempo se reanuda donde estaba, sin deshacer nada
+    if (session.status === 'done' && session.stepIndex < steps.length) {
+      await db.sessions.update(sessionId, { status: 'active', endedAt: undefined })
+      return
+    }
+    const index = Math.min(session.stepIndex, steps.length) - 1
+    const step = steps[index]
+    if (!step) return
+    const logs = await logsOfStep(db, sessionId, step)
+    const redo: RedoData = { stepIndex: index, logs: [] }
+    if (step.type === 'restpause') {
+      const main = logs[0]
+      redo.extraReps = main?.extraReps
+      if (main) await db.sets.update(main.id, { extraReps: undefined })
+    } else {
+      redo.logs = logs
+        .sort((a, b) => a.at - b.at)
+        .map((l) => ({
+          kind: l.kind,
+          setIndex: l.setIndex,
+          weight: l.weight,
+          reps: l.reps,
+          techReps: l.techReps,
+        }))
+      await db.sets.bulkDelete(logs.map((l) => l.id))
+    }
+    await db.sessions.update(sessionId, {
+      stepIndex: index,
+      restEndAt: null,
+      restTotalSec: 0,
+      status: 'active',
+      endedAt: undefined,
+      redo,
+    })
   })
 }
 
@@ -348,7 +421,7 @@ export async function deleteSession(db: MejorAndoDB, id: string): Promise<void> 
 export async function updateSet(
   db: MejorAndoDB,
   id: string,
-  patch: { weight: number; reps: number },
+  patch: { weight: number; reps: number; techReps?: number },
 ): Promise<void> {
   await db.sets.update(id, patch)
 }

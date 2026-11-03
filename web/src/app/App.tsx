@@ -14,6 +14,7 @@ import { Settings } from '../features/settings/Settings'
 import { BottomNav } from '../ui/components'
 import { unlockAudio } from './sound'
 import { Tour } from './Tour'
+import { NovedadesScreen, WhatsNewDialog } from './WhatsNew'
 import { requestPersistence } from './storage'
 import { useApplyTheme } from './theme'
 
@@ -32,6 +33,7 @@ function Shell() {
         <Route path="/gym/dia/:id/agregar" element={<AddItem />} />
         <Route path="/gym/sesion/:sid" element={<SessionScreen />} />
         <Route path="/ajustes" element={<Settings />} />
+        <Route path="/novedades" element={<NovedadesScreen />} />
         <Route path="*" element={<Home />} />
       </Routes>
       {TOP_LEVEL.has(pathname) && <BottomNav />}
@@ -79,6 +81,7 @@ export function App({ splash = true }: { splash?: boolean }) {
       {!splashDone && <Splash onDone={finishSplash} />}
       {ready && <Shell />}
       {ready && splashDone && <Tour />}
+      {ready && splashDone && <WhatsNewDialog />}
     </BrowserRouter>
   )
 }

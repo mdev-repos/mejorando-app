@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { useRef, useState } from 'react'
 import { MODULES, useEnabledModules } from '../../app/modules'
 import { playCue, unlockAudio, useFeedbackPrefs } from '../../app/sound'
@@ -268,7 +269,10 @@ export function Settings() {
             github.com/everkinetic/data
           </a>
         </div>
-        <p className="t2 center" style={{ marginTop: 18 }}>
+        <Link className="btn small" style={{ marginTop: 18 }} to="/novedades">
+          Novedades de la versión {__APP_VERSION__}
+        </Link>
+        <p className="t2 center" style={{ marginTop: 12 }}>
           MejorAndo · Beta {__APP_VERSION__}
         </p>
       </div>

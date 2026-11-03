@@ -63,6 +63,7 @@ La rutina se arma eligiendo, no escribiendo. Se agrega un ejercicio, se elige un
 
 - **JumpSet.** Se eligen dos o tres ejercicios, la cantidad de rondas y el descanso que sigue a cada uno.
 - **Rest pause.** Va siempre en la última serie y una sola vez, con 20 segundos de descanso por defecto. Con 80 kg en press banca, por ejemplo, la serie 1 es de 8 repeticiones, la serie 2 de 6, la serie 3 de 4, y 20 segundos después vienen 2 repeticiones más. El tramo principal se compara como cualquier serie, y las repeticiones extra se comparan aparte.
+- **Repeticiones con falla de técnica.** Al anotar una serie se pueden sumar, aparte de las buenas, las repeticiones que se hacen cuando la técnica ya falla. Ocho buenas y tres que no llegan a completar el movimiento quedan como 8 + 3. La comparación con la vez anterior usa solo las buenas ([ADR-019](decisiones/ADR-019-correcciones-en-el-entrenamiento-y-novedades.md)).
 - **Escalonado.** Se elige la cantidad de series, las repeticiones de la primera y el salto entre series, que por defecto es de menos 2. Con 4 series de 10 se arma 10, 8, 6 y 4.
 
 ## Series de aproximación
@@ -134,7 +135,7 @@ erDiagram
 | Ejercicio | Nombre, grupo, equipo y tipo de carga. Los propios llevan un identificador único |
 | Ajuste de ejercicio | El paso de peso elegido para ese ejercicio |
 | Sesión | El día, la ejecución, una copia del plan, el estado, y el punto en que va el descanso |
-| Serie | Peso y repeticiones, si es efectiva o de aproximación, su número y, si hubo rest pause, las repeticiones extra |
+| Serie | Peso y repeticiones, si es efectiva o de aproximación, su número y, si hubo rest pause, las repeticiones extra, y las repeticiones con falla de técnica, si las hubo |
 
 Detalles que se mantienen a lo largo del modelo.
 

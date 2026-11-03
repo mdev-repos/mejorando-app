@@ -31,6 +31,7 @@ El orden en que se construyó y se construye la aplicación. Cada etapa deja alg
 - Paseo de bienvenida, recomendaciones y preguntas frecuentes ([ADR-016](decisiones/ADR-016-paseo-y-recomendaciones.md)).
 - Licencia libre ([ADR-014](decisiones/ADR-014-licencia-gpl.md)) y herramientas de desarrollo fuera de la versión publicada ([ADR-017](decisiones/ADR-017-herramientas-de-desarrollo.md)).
 - Una landing con la historia, las capturas y las preguntas frecuentes, y los dos repositorios públicos.
+- Primeras mejoras salidas de entrenar con la app, versión 0.3.0 ([ADR-019](decisiones/ADR-019-correcciones-en-el-entrenamiento-y-novedades.md)). Editar un ejercicio ya cargado, deshacer una serie, repeticiones con falla de técnica y novedades de cada versión.
 
 ## En curso
 

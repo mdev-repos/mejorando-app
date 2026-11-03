@@ -1,0 +1,52 @@
+{
+  "releases": [
+    {
+      "version": "0.3.0",
+      "date": "2026-11-02",
+      "changes": [
+        {
+          "type": "nuevo",
+          "text": "Ahora podés editar un ejercicio ya cargado en un día (series, repeticiones, descanso, protocolo) con el botón ✎, sin borrarlo y empezar de cero."
+        },
+        {
+          "type": "nuevo",
+          "text": "Al anotar una serie podés sumar repeticiones con falla de técnica. Por ejemplo, 8 buenas y 3 que no llegan a completar el movimiento se guardan como 8 + 3."
+        },
+        {
+          "type": "nuevo",
+          "text": "Si tocaste Serie hecha por error, podés volver atrás y corregirla. Funciona durante el descanso y en cada pantalla del entrenamiento."
+        },
+        {
+          "type": "nuevo",
+          "text": "En un entrenamiento terminado podés reabrir la última serie, o seguir entrenando si lo cortaste antes de tiempo."
+        },
+        {
+          "type": "nuevo",
+          "text": "Cuando hay una versión nueva, la app te muestra qué trae antes de actualizar. Todas las novedades quedan en Ajustes."
+        }
+      ]
+    },
+    {
+      "version": "0.2.0",
+      "date": "2026-11-01",
+      "changes": [
+        {
+          "type": "nuevo",
+          "text": "Primera versión beta pública, con más de 240 ejercicios con dibujo."
+        },
+        {
+          "type": "nuevo",
+          "text": "Paseo de bienvenida, recomendaciones y aviso para hacer copias de seguridad."
+        },
+        {
+          "type": "nuevo",
+          "text": "Compartir una rutina como archivo o como texto, y recibirla en otro teléfono."
+        },
+        {
+          "type": "mejora",
+          "text": "Se pueden corregir o borrar series y entrenamientos ya terminados."
+        }
+      ]
+    }
+  ]
+}

@@ -119,12 +119,22 @@ export interface SetLog {
   setIndex: number
   weight: number
   reps: number
+  /** Repeticiones con falla de técnica, que se suman aparte de las buenas. Una serie de 8 + 3 guarda reps 8 y techReps 3. */
+  techReps?: number
   /** Repeticiones del tramo de rest pause, si lo hubo. */
   extraReps?: number
   at: number
 }
 
 export type SessionStatus = 'active' | 'done'
+
+/** Lo que se había cargado en un paso que se deshizo, para que quien corrige no empiece de cero. */
+export interface RedoData {
+  /** El paso al que se volvió. Si el paso actual es otro, estos datos ya no valen. */
+  stepIndex: number
+  logs: { kind: SetKind; setIndex: number; weight: number; reps: number; techReps?: number }[]
+  extraReps?: number
+}
 
 export interface Session {
   id: string
@@ -143,4 +153,5 @@ export interface Session {
   stepIndex: number
   restEndAt: number | null
   restTotalSec: number
+  redo?: RedoData
 }

@@ -137,6 +137,16 @@ export function DayEditor() {
               </div>
               {editable && (
                 <div className="acts">
+                  <button
+                    aria-label="Editar"
+                    onClick={() =>
+                      navigate(
+                        `/gym/dia/${day.id}/agregar?item=${item.id}${execution > 1 ? `&e=${execution}` : ''}`,
+                      )
+                    }
+                  >
+                    ✎
+                  </button>
                   <button aria-label="Subir" disabled={i === 0} onClick={() => move(i, -1)}>
                     ↑
                   </button>

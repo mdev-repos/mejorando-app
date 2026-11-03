@@ -10,9 +10,12 @@ import { JUMP_REST_PRESETS, escalonado, formatRest, formatTarget } from '../../d
 import type {
   Exercise,
   JumpSetItem,
+  Mesocycle,
   NormalItem,
+  PlanItem,
   RepTarget,
   RestPauseItem,
+  Training,
 } from '../../domain/types'
 import { GroupThumb, RestPicker, Stepper, TopBar } from '../../ui/components'
 
@@ -213,54 +216,159 @@ function RestField({
 type Phase =
   'pick' | 'mode' | 'normal' | 'protocol' | 'restpause' | 'escalonado' | 'jump' | 'jumppick'
 
+type Lookup = (id: string) => Exercise | undefined
+
+interface Initial {
+  phase: Phase
+  exercise: Exercise
+  sets: number
+  target: RepTarget
+  restSec: number
+  restPauseSec: number
+  jump: { exercise: Exercise; target: RepTarget; restSec: number }[]
+  rounds: number
+  escSets: number
+  escFirst: number
+  escStep: number
+}
+
+const DEFAULTS = {
+  sets: 3,
+  target: { kind: 'range', min: 8, max: 10 } as RepTarget,
+  restSec: 120,
+  restPauseSec: 20,
+  jump: [] as Initial['jump'],
+  rounds: 3,
+  escSets: 4,
+  escFirst: 10,
+  escStep: -2,
+}
+
+/** Los valores con los que arranca el formulario al editar un ejercicio ya cargado. */
+function initialFrom(item: PlanItem, byId: Lookup): Initial | undefined {
+  if (item.kind === 'jumpset') {
+    const jump = item.steps.flatMap((s) => {
+      const exercise = byId(s.exerciseId)
+      return exercise ? [{ exercise, target: s.target, restSec: s.restSec }] : []
+    })
+    const first = jump[0]
+    if (!first || jump.length < item.steps.length) return undefined
+    return { ...DEFAULTS, phase: 'jump', exercise: first.exercise, jump, rounds: item.rounds }
+  }
+  const exercise = byId(item.exerciseId)
+  if (!exercise) return undefined
+  if (item.kind === 'restpause') {
+    return {
+      ...DEFAULTS,
+      phase: 'restpause',
+      exercise,
+      sets: item.sets,
+      target: item.target,
+      restSec: item.restSec,
+      restPauseSec: item.restPauseSec,
+    }
+  }
+  if (item.target.kind === 'sequence') {
+    const reps = item.target.reps
+    return {
+      ...DEFAULTS,
+      phase: 'escalonado',
+      exercise,
+      restSec: item.restSec,
+      escSets: item.sets,
+      escFirst: reps[0] ?? DEFAULTS.escFirst,
+      escStep: reps.length > 1 ? (reps[1] ?? 0) - (reps[0] ?? 0) : DEFAULTS.escStep,
+    }
+  }
+  return {
+    ...DEFAULTS,
+    phase: 'normal',
+    exercise,
+    sets: item.sets,
+    target: item.target,
+    restSec: item.restSec,
+  }
+}
+
+/** Agrega un ejercicio al día, o edita uno ya cargado si la dirección trae ?item=. */
 export function AddItem() {
   const { id = '' } = useParams()
-  const navigate = useNavigate()
   const [params] = useSearchParams()
   const day = useLiveQuery(async () => (await db.trainings.get(id)) ?? null, [id])
   const meso = useLiveQuery(
     async () => (day ? await db.mesocycles.get(day.mesoId) : undefined),
     [day?.mesoId],
   )
-  const [phase, setPhase] = useState<Phase>('pick')
-  const [exercise, setExercise] = useState<Exercise | null>(null)
+  const { list, byId } = useExercises()
+  if (!day || !meso || list.length === 0) return null
+  const execution = Math.min(Math.max(Number(params.get('e')) || 1, 1), meso.executions)
+  const itemId = params.get('item')
+  const editing = itemId
+    ? itemsFor(day, execution, meso.mode).find((i) => i.id === itemId)
+    : undefined
+  return (
+    <ItemForm
+      key={editing?.id ?? 'nuevo'}
+      day={day}
+      meso={meso}
+      execution={execution}
+      editing={editing}
+      byId={byId}
+    />
+  )
+}
+
+function ItemForm(props: {
+  day: Training
+  meso: Mesocycle
+  execution: number
+  editing: PlanItem | undefined
+  byId: Lookup
+}) {
+  const { day, meso, execution, editing } = props
+  const navigate = useNavigate()
+  const init = editing ? initialFrom(editing, props.byId) : undefined
+  const [phase, setPhase] = useState<Phase>(init?.phase ?? 'pick')
+  const [exercise, setExercise] = useState<Exercise | null>(init?.exercise ?? null)
 
   // normal y rest pause
-  const [sets, setSets] = useState(3)
-  const [target, setTarget] = useState<RepTarget>({ kind: 'range', min: 8, max: 10 })
-  const [restSec, setRestSec] = useState(120)
-  const [restPauseSec, setRestPauseSec] = useState(20)
+  const [sets, setSets] = useState(init?.sets ?? DEFAULTS.sets)
+  const [target, setTarget] = useState<RepTarget>(init?.target ?? DEFAULTS.target)
+  const [restSec, setRestSec] = useState(init?.restSec ?? DEFAULTS.restSec)
+  const [restPauseSec, setRestPauseSec] = useState(init?.restPauseSec ?? DEFAULTS.restPauseSec)
   // jumpset
-  const [jump, setJump] = useState<{ exercise: Exercise; target: RepTarget; restSec: number }[]>([])
-  const [rounds, setRounds] = useState(3)
+  const [jump, setJump] = useState(init?.jump ?? DEFAULTS.jump)
+  const [rounds, setRounds] = useState(init?.rounds ?? DEFAULTS.rounds)
   // escalonado
-  const [escSets, setEscSets] = useState(4)
-  const [escFirst, setEscFirst] = useState(10)
-  const [escStep, setEscStep] = useState(-2)
+  const [escSets, setEscSets] = useState(init?.escSets ?? DEFAULTS.escSets)
+  const [escFirst, setEscFirst] = useState(init?.escFirst ?? DEFAULTS.escFirst)
+  const [escStep, setEscStep] = useState(init?.escStep ?? DEFAULTS.escStep)
 
-  if (!day || !meso) return null
-  const execution = Math.min(Math.max(Number(params.get('e')) || 1, 1), meso.executions)
   const simple = meso.mode === 'simple'
   const back = () => navigate(`/gym/dia/${day.id}${execution > 1 ? `?e=${execution}` : ''}`)
 
+  /** Agrega el ejercicio al final, o reemplaza el que se está editando en su mismo lugar. */
   async function append(item: NormalItem | RestPauseItem | JumpSetItem) {
-    if (!day || !meso) return
-    await saveItems(db, day.id, [...itemsFor(day, execution, meso.mode), item], execution)
+    const current = itemsFor(day, execution, meso.mode)
+    const next = editing ? current.map((i) => (i.id === editing.id ? item : i)) : [...current, item]
+    await saveItems(db, day.id, next, execution)
     back()
   }
+  const itemId = editing?.id ?? newId()
 
+  // al editar, el formulario es la pantalla de partida y el selector solo sirve para cambiar el ejercicio
   const goBack: Record<Phase, () => void> = {
-    pick: back,
+    pick: init ? () => setPhase(init.phase) : back,
     mode: () => setPhase('pick'),
-    normal: () => setPhase(simple ? 'pick' : 'mode'),
+    normal: init ? back : () => setPhase(simple ? 'pick' : 'mode'),
     protocol: () => setPhase('mode'),
-    restpause: () => setPhase('protocol'),
-    escalonado: () => setPhase('protocol'),
-    jump: () => setPhase('protocol'),
+    restpause: init ? back : () => setPhase('protocol'),
+    escalonado: init ? back : () => setPhase('protocol'),
+    jump: init ? back : () => setPhase('protocol'),
     jumppick: () => setPhase('jump'),
   }
   const titles: Record<Phase, string> = {
-    pick: 'Agregar ejercicio',
+    pick: init ? 'Cambiar ejercicio' : 'Agregar ejercicio',
     mode: exercise?.name ?? 'Modo',
     normal: exercise?.name ?? 'Normal',
     protocol: 'Protocolo',
@@ -287,7 +395,7 @@ export function AddItem() {
           <ExercisePicker
             onPick={(e) => {
               setExercise(e)
-              setPhase(simple ? 'normal' : 'mode')
+              setPhase(init ? init.phase : simple ? 'normal' : 'mode')
             }}
           />
         )}
@@ -345,6 +453,16 @@ export function AddItem() {
               </div>
             </button>
           </div>
+        )}
+
+        {init && init.phase !== 'jump' && phase !== 'pick' && phase !== 'jump' && exercise && (
+          <button
+            className="btn small"
+            style={{ marginBottom: 12 }}
+            onClick={() => setPhase('pick')}
+          >
+            Cambiar ejercicio
+          </button>
         )}
 
         {(phase === 'normal' || phase === 'restpause') && exercise && (
@@ -466,7 +584,7 @@ export function AddItem() {
               onClick={() => {
                 if (phase === 'normal')
                   void append({
-                    id: newId(),
+                    id: itemId,
                     kind: 'normal',
                     exerciseId: exercise.id,
                     sets,
@@ -475,7 +593,7 @@ export function AddItem() {
                   })
                 if (phase === 'escalonado')
                   void append({
-                    id: newId(),
+                    id: itemId,
                     kind: 'normal',
                     exerciseId: exercise.id,
                     sets: escSets,
@@ -484,7 +602,7 @@ export function AddItem() {
                   })
                 if (phase === 'restpause')
                   void append({
-                    id: newId(),
+                    id: itemId,
                     kind: 'restpause',
                     exerciseId: exercise.id,
                     sets,
@@ -494,7 +612,7 @@ export function AddItem() {
                   })
                 if (phase === 'jump')
                   void append({
-                    id: newId(),
+                    id: itemId,
                     kind: 'jumpset',
                     rounds,
                     steps: jump.map((s) => ({
@@ -505,7 +623,7 @@ export function AddItem() {
                   })
               }}
             >
-              Agregar al entrenamiento
+              {editing ? 'Guardar cambios' : 'Agregar al entrenamiento'}
             </button>
             {phase === 'jump' && jump.length < 2 && (
               <div className="hint">Un JumpSet necesita al menos dos ejercicios.</div>

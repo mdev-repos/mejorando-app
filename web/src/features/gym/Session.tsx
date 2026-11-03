@@ -16,6 +16,7 @@ import {
   previousSets,
   saveFlow,
   stepsOf,
+  undoStep,
   updateSet,
   type NewLog,
 } from '../../db/queries'
@@ -32,7 +33,7 @@ import {
 import { formatNumber, parseNumber } from '../../domain/numbers'
 import { PHASE_LABEL, restCue, restPhase } from '../../domain/rest'
 import { formatRest, formatTarget, startReps } from '../../domain/targets'
-import type { Exercise, Session, SetLog } from '../../domain/types'
+import type { Exercise, RedoData, Session, SetLog } from '../../domain/types'
 import {
   GroupThumb,
   QuickChips,
@@ -46,10 +47,32 @@ import { formatDate, formatDuration, itemSummary, itemTitle } from './format'
 
 type Lookup = (id: string) => Exercise | undefined
 
-function liftText(l: { weight: number; reps: number }, ex: Exercise | undefined): string {
+/** Las repeticiones, con las de falla de técnica aparte: 8 + 3. */
+function repsText(l: { reps: number; techReps?: number }): string {
+  return l.techReps ? `${l.reps} + ${l.techReps}` : String(l.reps)
+}
+
+function liftText(
+  l: { weight: number; reps: number; techReps?: number },
+  ex: Exercise | undefined,
+): string {
   if (ex?.load === 'time') return `${l.reps} s`
-  if (ex?.load === 'bodyweight' && l.weight === 0) return `${l.reps} reps`
-  return `${formatNumber(l.weight)} kg x ${l.reps}`
+  if (ex?.load === 'bodyweight' && l.weight === 0) return `${repsText(l)} reps`
+  return `${formatNumber(l.weight)} kg x ${repsText(l)}`
+}
+
+/** El dato a retomar si se deshizo el paso actual. */
+function redoFor(session: Session, stepIndex: number): RedoData | undefined {
+  return session.redo?.stepIndex === stepIndex ? session.redo : undefined
+}
+
+function UndoButton({ onUndo, label }: { onUndo?: () => void; label: string }) {
+  if (!onUndo) return null
+  return (
+    <button className="btn small" style={{ marginTop: 14 }} onClick={onUndo}>
+      ↶ {label}
+    </button>
+  )
 }
 
 export function SessionScreen() {
@@ -72,7 +95,7 @@ export function SessionScreen() {
       </>
     )
   }
-  if (session.status === 'done') return <Summary session={session} byId={byId} />
+  if (session.status === 'done') return <Summary session={session} byId={byId} steps={steps} />
   return <Active session={session} steps={steps} byId={byId} />
 }
 
@@ -89,6 +112,7 @@ function Active({ session, steps, byId }: { session: Session; steps: Step[]; byI
 
   const finish = (input: { logs?: NewLog[]; extraReps?: number }) =>
     completeStep(db, session.id, steps, input)
+  const undo = flow.stepIndex > 0 ? () => void undoStep(db, session.id, steps) : undefined
 
   useEffect(() => {
     if (!step) navigate('/gym', { replace: true })
@@ -120,7 +144,7 @@ function Active({ session, steps, byId }: { session: Session; steps: Step[]; byI
       {showList ? (
         <ListView session={session} done={done} byId={byId} onClose={() => setShowList(false)} />
       ) : flow.restEndAt !== null ? (
-        <RestView session={session} steps={steps} byId={byId} />
+        <RestView session={session} steps={steps} byId={byId} onUndo={undo} />
       ) : step?.type === 'approach' ? (
         <ApproachView
           key={flow.stepIndex}
@@ -128,6 +152,7 @@ function Active({ session, steps, byId }: { session: Session; steps: Step[]; byI
           step={step}
           byId={byId}
           onDone={finish}
+          onUndo={undo}
         />
       ) : step?.type === 'restpause' ? (
         <RestPauseView
@@ -136,9 +161,17 @@ function Active({ session, steps, byId }: { session: Session; steps: Step[]; byI
           step={step}
           byId={byId}
           onDone={finish}
+          onUndo={undo}
         />
       ) : step ? (
-        <SetView key={flow.stepIndex} session={session} step={step} byId={byId} onDone={finish} />
+        <SetView
+          key={flow.stepIndex}
+          session={session}
+          step={step}
+          byId={byId}
+          onDone={finish}
+          onUndo={undo}
+        />
       ) : null}
     </>
   )
@@ -150,16 +183,20 @@ function ApproachView(props: {
   step: Extract<Step, { type: 'approach' }>
   byId: Lookup
   onDone: (i: { logs?: NewLog[] }) => void
+  onUndo?: () => void
 }) {
   const { session, step, byId } = props
   const ex = byId(step.exerciseId)
+  const redo = redoFor(session, session.stepIndex)
   const [wstep] = useWeightStep(ex)
   const prev = useLiveQuery(
     () => previousSets(db, step.exerciseId, 'approach', session.id),
     [step.exerciseId, session.id],
   )
-  const [answer, setAnswer] = useState<'ask' | 'yes'>('ask')
-  const [rows, setRows] = useState<{ weight: number; reps: number }[] | null>(null)
+  const [answer, setAnswer] = useState<'ask' | 'yes'>(redo?.logs.length ? 'yes' : 'ask')
+  const [rows, setRows] = useState<{ weight: number; reps: number }[] | null>(
+    redo?.logs.length ? redo.logs.map((l) => ({ weight: l.weight, reps: l.reps })) : null,
+  )
 
   if (prev === undefined) return null
   const initial = prev.length
@@ -179,6 +216,7 @@ function ApproachView(props: {
               Para {groupLabel(step.group)}, antes de {ex?.name ?? 'empezar'}.
             </p>
           </div>
+          <UndoButton onUndo={props.onUndo} label="Volver al paso anterior" />
         </div>
         <div className="bottom">
           <div className="two">
@@ -252,6 +290,7 @@ function ApproachView(props: {
         >
           + Agregar fila
         </button>
+        <UndoButton onUndo={props.onUndo} label="Volver al paso anterior" />
       </div>
       <div className="bottom">
         <button
@@ -283,6 +322,7 @@ function SetView(props: {
   step: Extract<Step, { type: 'set' | 'jump' }>
   byId: Lookup
   onDone: (i: { logs?: NewLog[] }) => void
+  onUndo?: () => void
 }) {
   const { session, step, byId } = props
   const ex = byId(step.exerciseId)
@@ -306,9 +346,14 @@ function SetView(props: {
   const effective = mine.filter((s) => s.kind === 'effective' && s.itemId === step.itemId)
   const approach = mine.filter((s) => s.kind === 'approach')
   const lastDone = effective[effective.length - 1]
+  const redo = redoFor(session, session.stepIndex)?.logs[0]
   const startWeight =
-    prevSet?.weight ?? lastDone?.weight ?? approach[approach.length - 1]?.weight ?? 0
-  const initialReps = prevSet?.reps ?? startReps(step.target)
+    redo?.weight ??
+    prevSet?.weight ??
+    lastDone?.weight ??
+    approach[approach.length - 1]?.weight ??
+    0
+  const initialReps = redo?.reps ?? prevSet?.reps ?? startReps(step.target)
 
   return (
     <SetForm
@@ -322,7 +367,9 @@ function SetView(props: {
       approach={approach}
       startWeight={startWeight}
       startReps={initialReps}
+      startTech={redo?.techReps ?? 0}
       onDone={props.onDone}
+      onUndo={props.onUndo}
     />
   )
 }
@@ -337,12 +384,16 @@ function SetForm(props: {
   approach: SetLog[]
   startWeight: number
   startReps: number
+  startTech: number
   onDone: (i: { logs?: NewLog[] }) => void
+  onUndo?: () => void
 }) {
   const { session, step, ex, prevSet } = props
   const [weight, setWeight] = useState(props.startWeight)
   const [wstep, setWstep] = useWeightStep(ex)
   const [reps, setReps] = useState(props.startReps)
+  const [tech, setTech] = useState(props.startTech)
+  const [showTech, setShowTech] = useState(props.startTech > 0)
   const setIndex = step.type === 'set' ? step.setIndex : step.round
   const total = step.type === 'set' ? step.totalSets : step.rounds
   const verdict = compareSet({ weight, reps }, prevSet)
@@ -443,6 +494,42 @@ function SetForm(props: {
               onChange={setReps}
             />
           </div>
+          {!isTime && !showTech && (
+            <button
+              className="btn small"
+              style={{ marginTop: 8 }}
+              onClick={() => {
+                setTech(1)
+                setShowTech(true)
+              }}
+            >
+              + Repeticiones con falla de técnica
+            </button>
+          )}
+          {!isTime && showTech && (
+            <div className="stack" style={{ marginTop: 8, gap: 6 }}>
+              <Stepper
+                label="Con falla de técnica"
+                value={tech}
+                step={1}
+                min={0}
+                onChange={setTech}
+              />
+              <div className="t2">
+                Son las que se hacen después de las buenas, por ejemplo 8 + 3. Se anotan aparte y la
+                comparación usa solo las buenas.
+              </div>
+              <button
+                className="btn small"
+                onClick={() => {
+                  setTech(0)
+                  setShowTech(false)
+                }}
+              >
+                Quitar
+              </button>
+            </div>
+          )}
           {!isTime && (
             <div className="stack" style={{ marginTop: 8, gap: 4 }}>
               {ex.load === 'external' && (
@@ -468,7 +555,15 @@ function SetForm(props: {
           onClick={() => {
             playCue('done')
             props.onDone({
-              logs: [{ kind: 'effective', setIndex, weight: isTime ? 0 : weight, reps }],
+              logs: [
+                {
+                  kind: 'effective',
+                  setIndex,
+                  weight: isTime ? 0 : weight,
+                  reps,
+                  techReps: isTime || !showTech ? undefined : tech,
+                },
+              ],
             })
           }}
         >
@@ -480,6 +575,14 @@ function SetForm(props: {
             mismo peso.
           </div>
         )}
+        <UndoButton
+          onUndo={props.onUndo}
+          label={
+            setIndex > 1 || step.type === 'jump'
+              ? 'Volver a la serie anterior'
+              : 'Volver al paso anterior'
+          }
+        />
       </div>
     </>
   )
@@ -491,6 +594,7 @@ function RestPauseView(props: {
   step: Extract<Step, { type: 'restpause' }>
   byId: Lookup
   onDone: (i: { extraReps?: number }) => void
+  onUndo?: () => void
 }) {
   const { session, step, byId } = props
   const ex = byId(step.exerciseId)
@@ -518,7 +622,9 @@ function RestPauseView(props: {
       weight={main?.weight ?? 0}
       mainReps={main?.reps ?? 0}
       prevExtra={prevExtra}
+      startExtra={redoFor(session, session.stepIndex)?.extraReps}
       onDone={props.onDone}
+      onUndo={props.onUndo}
     />
   )
 }
@@ -528,9 +634,11 @@ function RestPauseForm(props: {
   weight: number
   mainReps: number
   prevExtra: number | undefined
+  startExtra: number | undefined
   onDone: (i: { extraReps?: number }) => void
+  onUndo?: () => void
 }) {
-  const [extra, setExtra] = useState(props.prevExtra ?? 2)
+  const [extra, setExtra] = useState(props.startExtra ?? props.prevExtra ?? 2)
   const verdict = compareExtra(extra, props.prevExtra)
   return (
     <>
@@ -576,6 +684,7 @@ function RestPauseForm(props: {
         <button className="btn primary" onClick={() => props.onDone({ extraReps: extra })}>
           Listo
         </button>
+        <UndoButton onUndo={props.onUndo} label="Volver a la serie anterior" />
       </div>
     </>
   )
@@ -606,7 +715,17 @@ function describeNext(
   }
 }
 
-function RestView({ session, steps, byId }: { session: Session; steps: Step[]; byId: Lookup }) {
+function RestView({
+  session,
+  steps,
+  byId,
+  onUndo,
+}: {
+  session: Session
+  steps: Step[]
+  byId: Lookup
+  onUndo?: () => void
+}) {
   const flow = flowOf(session)
   const end = flow.restEndAt ?? 0
   const now = useNow(true)
@@ -669,6 +788,7 @@ function RestView({ session, steps, byId }: { session: Session; steps: Step[]; b
               {last.extraReps !== undefined && ` + ${last.extraReps}`}
             </div>
             {last.kind === 'effective' && <VerdictBadge verdict={verdict} />}
+            <UndoButton onUndo={onUndo} label="Me equivoqué, corregir" />
           </div>
         )}
         {next && (
@@ -745,9 +865,14 @@ function ListView({
 }
 
 /* ======================= resumen ======================= */
-function Summary({ session, byId }: { session: Session; byId: Lookup }) {
+function Summary({ session, byId, steps }: { session: Session; byId: Lookup; steps: Step[] }) {
   const navigate = useNavigate()
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const otherActive = useLiveQuery(
+    async () => (await db.sessions.where('status').equals('active').count()) > 0,
+    [],
+  )
+  const early = session.stepIndex < steps.length
   const sets = useLiveQuery(
     () => db.sets.where('sessionId').equals(session.id).sortBy('at'),
     [session.id],
@@ -801,6 +926,19 @@ function Summary({ session, byId }: { session: Session; byId: Lookup }) {
         })}
         <div style={{ height: 14 }} />
         <button
+          className="btn small"
+          style={{ marginBottom: 10 }}
+          disabled={otherActive !== false}
+          onClick={() => void undoStep(db, session.id, steps)}
+        >
+          {early ? 'Seguir entrenando' : 'Reabrir la última serie'}
+        </button>
+        {otherActive && (
+          <div className="t2" style={{ marginBottom: 10 }}>
+            Hay otro entrenamiento en curso. Terminalo para poder reabrir este.
+          </div>
+        )}
+        <button
           className="btn small danger"
           onClick={async () => {
             if (!confirmDelete) return setConfirmDelete(true)
@@ -825,15 +963,22 @@ function SetRow({ s, ex }: { s: SetLog; ex: Exercise | undefined }) {
   const [editing, setEditing] = useState(false)
   const [weight, setWeight] = useState(formatNumber(s.weight))
   const [reps, setReps] = useState(String(s.reps))
+  const [tech, setTech] = useState(s.techReps ? String(s.techReps) : '')
   const [confirmDelete, setConfirmDelete] = useState(false)
   const timed = ex?.load === 'time'
   const w = parseNumber(weight)
   const r = parseNumber(reps)
-  const valid = (timed || (w !== undefined && w >= 0)) && r !== undefined && r >= 0
+  const t = tech.trim() === '' ? 0 : parseNumber(tech)
+  const valid =
+    (timed || (w !== undefined && w >= 0)) && r !== undefined && r >= 0 && t !== undefined && t >= 0
 
   async function save() {
     if (!valid) return
-    await updateSet(db, s.id, { weight: timed ? s.weight : (w ?? 0), reps: Math.round(r ?? 0) })
+    await updateSet(db, s.id, {
+      weight: timed ? s.weight : (w ?? 0),
+      reps: Math.round(r ?? 0),
+      techReps: timed ? undefined : Math.round(t ?? 0) || undefined,
+    })
     setEditing(false)
   }
 
@@ -883,6 +1028,19 @@ function SetRow({ s, ex }: { s: SetLog; ex: Exercise | undefined }) {
             onChange={(e) => setReps(e.target.value)}
           />
         </div>
+        {!timed && s.kind === 'effective' && (
+          <div className="field">
+            <label htmlFor={`tc-${s.id}`}>Con falla de técnica</label>
+            <input
+              id={`tc-${s.id}`}
+              className="search"
+              inputMode="numeric"
+              placeholder="0"
+              value={tech}
+              onChange={(e) => setTech(e.target.value)}
+            />
+          </div>
+        )}
       </div>
       <div className="two">
         <button className="btn small" onClick={() => setEditing(false)}>

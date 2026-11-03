@@ -34,3 +34,4 @@ Cada archivo se llama `ADR-NNN-titulo-corto.md` y tiene estas secciones.
 | [ADR-016](ADR-016-paseo-y-recomendaciones.md) | Paseo de bienvenida, ayuda y recomendaciones de salud | Aceptada |
 | [ADR-017](ADR-017-herramientas-de-desarrollo.md) | Herramientas de desarrollo fuera de la versión publicada | Aceptada |
 | [ADR-018](ADR-018-publicacion-en-github-pages.md) | Publicación en GitHub Pages y repositorios públicos | Aceptada |
+| [ADR-019](ADR-019-correcciones-en-el-entrenamiento-y-novedades.md) | Editar ejercicios, deshacer series, repeticiones con falla de técnica y novedades | Aceptada |
